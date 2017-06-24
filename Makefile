@@ -25,15 +25,15 @@ SRC_DIR = src
 TARGET = $(LIB_DIR)/libt2fs.a
 
 #	Dependencias, ou seja, arquivos de header
-_DEPS = 
+_DEPS = bitmap2.h apidisk.h t2fs.h
 DEPS = $(patsubst %,$(INC_DIR)/%,$(_DEPS))
 
 #	Objetos a serem criados
-_OBJ = 
+_OBJ = t2fs.o
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
 #	Exceções para a regra "clean"
-_EXP = apidisk.o bitmap.o
+_EXP = apidisk.o bitmap2.o
 EXP = $(patsubst %,$(OBJ_DIR)/%,$(_EXP))
 
 
