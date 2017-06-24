@@ -4,8 +4,8 @@
 //considera que o tamanho de um registro eh dois setores
 //ass:Gabriel
 void loadMFT(REGMFT *reg, int numMFT){
-	read_sector(bootBlock.blocksize+numMFT,reg->data);
-	read_sector(bootBlock.blocksize+numMFT,reg->data+SECTORSIZE);
+	read_sector(bootBlock.blocksize+numMFT*2,reg->data);
+	read_sector(bootBlock.blocksize+numMFT*2+1,reg->data+SECTORSIZE);
 	reg->pointer=0;
 }
 
@@ -48,32 +48,32 @@ int getTuplaType(REGMFT *reg){
 //ass:Gabriel
 int isTuplaFree(REGMFT *reg){
 	if(getTuplaType(reg)==-1)
-		return 1;
-	else return 0;
+		return OK;
+	else return ERRO;
 }
 
 //retorna 1 se a tupla indica registro livre, 0 caso contrario
 //ass:Gabriel
 int isTuplaEnd(REGMFT *reg){
 	if(getTuplaType(reg)==0)
-		return 1;
-	else return 0;
+		return OK;
+	else return ERRO;
 }
 
 //retorna 1 se a tupla indica registro livre, 0 caso contrario
 //ass:Gabriel
 int isTuplaChain(REGMFT *reg){
 	if(getTuplaType(reg)==1)
-		return 1;
-	else return 0;
+		return OK;
+	else return ERRO;
 }
 
 //retorna 1 se a tupla indica registro livre, 0 caso contrario
 //ass:Gabriel
 int isTuplaJmp(REGMFT *reg){
 	if(getTuplaType(reg)==2)
-		return 1;
-	else return 0;
+		return OK;
+	else return ERRO;
 }
 //----------------------------------------------------------------------------------------------
 

@@ -16,7 +16,7 @@ typedef struct {
 //carrega um registro MFT indicado por numMFT e seta o ponteiro para zero
 //considera que o tamanho de um registro eh dois setores
 //ass:Gabriel
-int loadMFT(REGMFT *reg, int numMFT);
+void loadMFT(REGMFT *reg, int numMFT);
 
 //passa para a proxima tupla se puder e retorna 0, 1 caso contrario
 //ass:Gabriel
@@ -41,15 +41,15 @@ int getTuplaType(REGMFT *reg);
 //ass:Gabriel
 int isTuplaFree(REGMFT *reg);
 
-//retorna 1 se a tupla indica registro livre, 0 caso contrario
+//retorna 1 se a tupla indica fim de encadeamento, 0 caso contrario
 //ass:Gabriel
 int isTuplaEnd(REGMFT *reg);
 
-//retorna 1 se a tupla indica registro livre, 0 caso contrario
+//retorna 1 se a tupla indica mapeamento, 0 caso contrario
 //ass:Gabriel
 int isTuplaChain(REGMFT *reg);
 
-//retorna 1 se a tupla indica registro livre, 0 caso contrario
+//retorna 1 se a tupla indica registro adicional, 0 caso contrario
 //ass:Gabriel
 int isTuplaJmp(REGMFT *reg);
 
