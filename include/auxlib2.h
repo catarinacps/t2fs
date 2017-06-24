@@ -3,6 +3,7 @@
 
 #include "lista.h"
 #include "t2fs.h"
+#include "regMFT.h"
 
 
 #define ERRO -1

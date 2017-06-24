@@ -1,11 +1,15 @@
 #include <string.h>
 #include "../include/diskio.h"
+#include "../include/auxlib2.h"
+
+
 
 //ass:Nicolas
 int readBytes(int numBytes, char *buffer, unsigned int sector, unsigned short int offset) {
     unsigned char auxBuffer[256];
     int quantidadeSetores = numBytes;
-
+	if(numbytes<=0)
+		return ERRO;
     quantidadeSetores /= 256;
     quantidadeSetores++;
 
