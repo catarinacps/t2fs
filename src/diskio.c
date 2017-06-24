@@ -1,6 +1,7 @@
 #include <string.h>
 #include "../include/diskio.h"
 
+//ass:Nicolas
 int readBytes(int numBytes, char *buffer, unsigned int sector, unsigned short int offset) {
     unsigned char auxBuffer[256];
     int quantidadeSetores = numBytes;

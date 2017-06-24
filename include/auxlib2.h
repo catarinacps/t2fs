@@ -23,6 +23,8 @@ typedef struct {
     bool estaAberto;
 } OFILE;
 
+struct t2fs_bootBlock bootBlock;
+
 OFILE arquivosAbertos[20];
 LISTA *diretoriosAbertos;
 
