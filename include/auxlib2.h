@@ -35,5 +35,5 @@ int isValidPath(char caminho[]);
 
 int isRealPath(char caminho[]);
 
-int carregaBootBlock();
+int loadBootBlock();
 

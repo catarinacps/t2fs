@@ -16,7 +16,7 @@ typedef struct {
 
 //carrega a primeira entrada de diretorio e seta o ponteiro para zero
 //ass:Nicolas
-void loadFirstRecord(REGRECORD *regR, REGMFT *regM);
+void loadFirstRecord(REGRECORD *regR, REGMFT regM);
 
 //passa para a proxima entrada de diretorio se puder e retorna 0, 1 caso contrario
 //ass:Nicolas
@@ -34,34 +34,34 @@ void nextRecord(REGRECORD *regR, REGMFT *regM);
 */
 //retorna o tipo da entrada de diretorio. gg litle-endian
 //ass:Nicolas
-int getRecordType(REGRECORD *regR);
+int getRecordType(REGRECORD regR);
 
 //retorna 1 se a entrada de diretorio indica registro livre, 0 caso contrario
 //ass:Nicolas
-int isRecordFree(REGRECORD *regR);
+int isRecordFree(REGRECORD regR);
 
 //retorna 1 se a entrada de diretorio indica um arquivo, 0 caso contrario
 //ass:Nicolas
-int isRecordFile(REGRECORD *regR);
+int isRecordFile(REGRECORD regR);
 
 //retorna 1 se a entrada de diretorio indica um diretorio, 0 caso contrario
 //ass:Nicolas
-int isRecordDir(REGRECORD *regR);
+int isRecordDir(REGRECORD regR);
 
 //----------------------------------------------------------------------------------------------
 
 //retorna nome de reg
 //ass:Nicolas
-int getRecordName(REGRECORD *regR, char *buffer);
+int getRecordName(REGRECORD regR, char *buffer);
 
 //retorna tamanho total em blocos de reg
 //ass:Nicolas
-int getBlocksFileSize(REGRECORD *regR);
+int getBlocksFileSize(REGRECORD regR);
 
 //retorna tamanho total em bytes de reg
 //ass:Nicolas
-int getBytesFileSize(REGRECORD *regR);
+int getBytesFileSize(REGRECORD regR);
 
 //retorna numero de registro MFT de reg
 //ass:Nicolas
-int getMFTNumber(REGRECORD *regR);
+int getMFTNumber(REGRECORD regR);

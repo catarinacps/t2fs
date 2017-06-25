@@ -1,11 +1,18 @@
-
+#include "../include/t2fs.h"
+#include "../include/auxlib2.h"
 
 int identify2 (char *name, int size) {
     
 }
 
 FILE2 create2 (char *filename) {
-    
+    int freeRegNum;
+
+    if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename) == ERRO) {
+        if ((freeRegNum = findFreeMFT()) != ERRO) {
+            
+        }
+    }
 }
 
 int delete2 (char *filename) {

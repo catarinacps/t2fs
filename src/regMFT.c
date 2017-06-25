@@ -1,4 +1,6 @@
+#include <math.h>
 #include "../include/regMFT.h"
+#include "../include/apidisk.h"
 
 //carrega um registro MFT indicado por numMFT e seta o ponteiro para zero
 //considera que o tamanho de um registro eh dois setores
@@ -40,21 +42,21 @@ int backTupla(REGMFT *reg){
 */
 //retorna o tipo da tupla. gg litle-endian
 //ass:Gabriel
-int getTuplaType(REGMFT *reg){
-	return (int*)reg->data[SIZETUPLA*reg->pointer];
+int getTuplaType(REGMFT reg){
+	return (int)reg.data[SIZETUPLA*reg.pointer];
 }
 
 //retorna 1 se a tupla indica registro livre, 0 caso contrario
 //ass:Gabriel
-int isTuplaFree(REGMFT *reg){
-	if(getTuplaType(reg)==-1)
+int isTuplaFree(REGMFT reg){
+	if(getTuplaType(reg) == -1)
 		return OK;
 	else return ERRO;
 }
 
 //retorna 1 se a tupla indica registro livre, 0 caso contrario
 //ass:Gabriel
-int isTuplaEnd(REGMFT *reg){
+int isTuplaEnd(REGMFT reg){
 	if(getTuplaType(reg)==0)
 		return OK;
 	else return ERRO;
@@ -62,70 +64,70 @@ int isTuplaEnd(REGMFT *reg){
 
 //retorna 1 se a tupla indica registro livre, 0 caso contrario
 //ass:Gabriel
-int isTuplaChain(REGMFT *reg){
-	if(getTuplaType(reg)==1)
+int isTuplaChain(REGMFT reg){
+	if(getTuplaType(reg) == 1)
 		return OK;
 	else return ERRO;
 }
 
 //retorna 1 se a tupla indica registro livre, 0 caso contrario
 //ass:Gabriel
-int isTuplaJmp(REGMFT *reg){
-	if(getTuplaType(reg)==2)
+int isTuplaJmp(REGMFT reg){
+	if(getTuplaType(reg) == 2)
 		return OK;
 	else return ERRO;
 }
+
 //----------------------------------------------------------------------------------------------
 
 //retorna VBN de reg
 //ass:Gabriel
-int getVBN(REGMFT *reg){
+int getVBN(REGMFT reg){
 	int out=0;
-	for(int i=0;i<4;i++){
-		out+=reg->data[SIZETUPLA*reg->pointer+4+i]*256^i;
+	for (int i=0; i<4; i++) {
+		out += (int) reg.data[SIZETUPLA*reg.pointer + 4 + i]*pow(256,i);
 	}
 	return out;
 }
 
 //retorna LBN de reg
 //ass:Gabriel
-int getLBN(REGMFT *reg){
+int getLBN(REGMFT reg){
 	int out=0;
-	for(int i=0;i<4;i++){
-		out+=reg->data[SIZETUPLA*reg->pointer+8+i]*256^i;
+	for (int i=0; i<4; i++) {
+		out += (int) reg.data[SIZETUPLA*reg.pointer + 8 + i]*pow(256,i);
 	}
 	return out;
 }
 
 //retorna numero de blocos continuos de reg
 //ass:Gabriel
-int getCont(REGMFT *reg){
+int getCont(REGMFT reg){
 	int out=0;
-	for(int i=0;i<4;i++){
-		out+=reg->data[SIZETUPLA*reg->pointer+12+i]*256^i;
+
+	for (int i=0; i<4; i++) {
+		out += (int) reg.data[SIZETUPLA*reg.pointer + 12 + i]*pow(256,i);
 	}
 	return out;
 }
 
+//----------------------------------------------------------------------------------------------
 
+int setRegType(int numMFT, int type) {
+	char buffer[SECTOR_SIZE];
 
+	if (type <= 2 && type >= -1) {
+		read_sector(bootBlock.blockSize + numMFT*2, buffer);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		if (type != -1){
+			buffer[0] = (char) type;
+		} else {
+			buffer[0] = 0xFF;
+			buffer[1] = 0xFF;
+			buffer[2] = 0xFF;
+			buffer[3] = 0xFF;
+		}
+	} else {
+		return ERRO;
+	}
+}

@@ -35,35 +35,35 @@ int backTupla(REGMFT *reg);
 */
 //retorna o tipo da tupla. gg litle-endian
 //ass:Gabriel
-int getTuplaType(REGMFT *reg);
+int getTuplaType(REGMFT reg);
 
 //retorna 1 se a tupla indica registro livre, 0 caso contrario
 //ass:Gabriel
-int isTuplaFree(REGMFT *reg);
+int isTuplaFree(REGMFT reg);
 
 //retorna 1 se a tupla indica fim de encadeamento, 0 caso contrario
 //ass:Gabriel
-int isTuplaEnd(REGMFT *reg);
+int isTuplaEnd(REGMFT reg);
 
 //retorna 1 se a tupla indica mapeamento, 0 caso contrario
 //ass:Gabriel
-int isTuplaChain(REGMFT *reg);
+int isTuplaChain(REGMFT reg);
 
 //retorna 1 se a tupla indica registro adicional, 0 caso contrario
 //ass:Gabriel
-int isTuplaJmp(REGMFT *reg);
+int isTuplaJmp(REGMFT reg);
 
 //----------------------------------------------------------------------------------------------
 
 //retorna VBN de reg
 //ass:Gabriel
-int getVBN(REGMFT *reg);
+int getVBN(REGMFT reg);
 
 //retorna LBN de reg
 //ass:Gabriel
-int getLBN(REGMFT *reg);
+int getLBN(REGMFT reg);
 
 //retorna numero de blocos continuos de reg
 //ass:Gabriel
-int getCont(REGMFT *reg);
+int getCont(REGMFT reg);
 

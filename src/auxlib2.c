@@ -18,49 +18,130 @@ int openSpots() {
 
 //ass:Henrique
 int isValidPath(char caminho[]) {
-    char *token, woods[2], regMFT[512];
+    char *token, regMFT[512];
 	
-	if(caminho[0] != '/')
+	if (caminho[0] != '/') {
 		return ERRO;
+	}
 	
-    strcpy(woods, "/");
-    token = strtok(caminho, woods);
+    token = strtok(caminho, "/");
 
     while (token != NULL) {
         if (strspn(token, CARACTERES_VALIDOS) != strlen(token)) {
             return ERRO;
         }
-        token = strtok(NULL, woods); //NULL pq nicolas disse
+        token = strtok(NULL, "/"); //NULL pq nicolas disse
     }
 	
     // preicerolder
     // voltar aqui dps de fazer interface com o disco. a grafica. sim.
 	// os nomes parecem ok, agora vamos testar se as pastas realmente existem
 	
-	if(isRealPath(caminho) == OK)
-		return OK;
-	else
-		return ERRO;
+	return isRealPath(caminho);
 	
 }
 
+// seu lugar e no museu
+// talvez n seja mais uma merda
+// ass: isReal
 int isRealPath(char caminho[]) {
 	REGMFT regM;
 	REGRECORD regR;
-	char buffer[51];
+	char buffer[51], *token, *tokenAux;
 
 	loadMFT(&regM, 1);
+	loadFirstRecord(&regR, regM);
 
-	do {
+	token = strtok(caminho, "/");
+	tokenAux = token;
+
+	if (token == NULL) {
+		return ERRO;
+	}
+	while (token = strtok(NULL, "/")) {
+		getRecordName(regR, buffer);
+		while (strcmp(buffer, tokenAux) != 0) {
+			if (nextRecord(&regR, &regM) == ERRO) {
+				return ERRO;
+			}
+			getRecordName(regR, buffer);
+		}
+
+		if (isRecordFile(regR) == OK) {
+			return ERRO;
+		}
+		loadMFT(&regM, getMFTNumber(regR));
 		loadFirstRecord(&regR, regM);
-		getRecordName(&regR, buffer);
-	} while();
+		tokenAux = token;
+	}
 
+	return OK;
+}
 
+int fileExists(char caminho[]) {
+	REGMFT regM;
+	REGRECORD regR;
+	char buffer[51], *token, *tokenAux;
+
+	loadMFT(&regM, 1);
+	loadFirstRecord(&regR, regM);
+
+	token = strtok(caminho, "/");
+	tokenAux = token;
+
+	if (token == NULL) {
+		return ERRO;
+	}
+	while (token = strtok(NULL, "/")) {
+		getRecordName(regR, buffer);
+		while (strcmp(buffer, tokenAux) != 0) {
+			if (nextRecord(&regR, &regM) == ERRO) {
+				return ERRO;
+			}
+			getRecordName(regR, buffer);
+		}
+
+		if (isRecordFile(regR) == OK) {
+			return ERRO;
+		}
+		loadMFT(&regM, getMFTNumber(regR));
+		loadFirstRecord(&regR, regM);
+		tokenAux = token;
+	}
+
+	getRecordName(regR, buffer);
+	while (strcmp(buffer, tokenAux) != 0) {
+		if (nextRecord(&regR, &regM) == ERRO) {
+			return ERRO;
+		}
+		getRecordName(regR, buffer);
+	}
+
+	if (isRecordFile(regR) == OK) {
+		return OK;
+	} else {
+		return ERRO;
+	}
+}
+
+// bunda: henrique
+int findFreeMFT() {
+	int numMFTreg = bootBlock.blockSize * bootBlock.MFTBlocksSize / 2;
+	REGMFT regM;
+
+	for (int i=4; i < numMFTreg; i++) {
+		loadMFT(&regM, i);
+		if (isTuplaFree(regM) == OK) {		// existem garantias dos seres superiores q sempre vai ter espaco livre
+			return i;
+		}
+	}
+
+	printf("disco lotado, mesmo que n era pra isso acontecer");
+	return ERRO;
 }
 
 //ass:Gabriel
-int carregaBootBlock(){
+int loadBootBlock(){
 	//char bootBuffer[14];
 	//readBytes(14,bootBuffer,0,0);
 	char bootBuffer[256];
