@@ -1,5 +1,7 @@
 #include "../include/auxlib2.h"
 #include "../include/diskio.h"
+#include "../include/regMFT.h"
+#include "../include/regRecord.h"
 
 //BLANK SPACE
 //ass:Henrique
@@ -15,7 +17,7 @@ int openSpots() {
 }
 
 //ass:Henrique
-int isValidPath(char caminho[]){
+int isValidPath(char caminho[]) {
     char *token, woods[2], regMFT[512];
 	
 	if(caminho[0] != '/')
@@ -42,8 +44,19 @@ int isValidPath(char caminho[]){
 	
 }
 
-int isRealPath(char caminho[]){
-	
+int isRealPath(char caminho[]) {
+	REGMFT regM;
+	REGRECORD regR;
+	char buffer[51];
+
+	loadMFT(&regM, 1);
+
+	do {
+		loadFirstRecord(&regR, regM);
+		getRecordName(&regR, buffer);
+	} while();
+
+
 }
 
 //ass:Gabriel
