@@ -18,7 +18,9 @@ int openSpots() {
 int isValidPath(char caminho[]){
     char *token, woods[2], regMFT[512];
 	
-
+	if(caminho[0] != '/')
+		return ERRO;
+	
     strcpy(woods, "/");
     token = strtok(caminho, woods);
 
@@ -31,14 +33,26 @@ int isValidPath(char caminho[]){
 	
     // preicerolder
     // voltar aqui dps de fazer interface com o disco. a grafica. sim.
-	readBytes(512,regMFT,bootBlock.blocksSize+2,0);//512=tamanho de registroMFT
+	// os nomes parecem ok, agora vamos testar se as pastas realmente existem
+	
+	if(isRealPath(caminho) == OK)
+		return OK;
+	else
+		return ERRO;
+	
+}
+
+int isRealPath(char caminho[]){
 	
 }
 
 //ass:Gabriel
-int booooooootao(){
-	char bootBuffer[14];
-	readBytes(14,bootBuffer,0,0);
+int carregaBootBlock(){
+	//char bootBuffer[14];
+	//readBytes(14,bootBuffer,0,0);
+	char bootBuffer[256];
+	read_sector(0,bootBuffer);
+	
 	if(strncmp(bootBuffer,"T2FS",4)==0){
 		if((WORD)bootBuffer[4]+(WORD)bootBuffer[5]*256==0x7E11){
 			strcpy(bootBlock.id,"T2FS");
@@ -49,8 +63,11 @@ int booooooootao(){
 									(DWORD)bootBuffer[12]*65536+(DWORD)bootBuffer[13]*16777216;
 		}else{
 			printf("ERRO DE FORMATACAO DE DISCO\nO disco nao esta formatado direito.");
+			return ERRO;
 		}
 	}else{
 		printf("ERRO DE FORMATACAO DE DISCO\nO disco nao esta formatado direito.");
+		return ERRO;
 	}
+	return OK;
 }

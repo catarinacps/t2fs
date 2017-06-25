@@ -8,7 +8,7 @@
 
 #define ERRO -1
 #define OK 0
-#define CARACTERES_VALIDOS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ."
+#define CARACTERES_VALIDOS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789"
 
 typedef struct {
     DIR2 handle;
@@ -32,3 +32,8 @@ LISTA *diretoriosAbertos;
 int openSpots();
 
 int isValidPath(char caminho[]);
+
+int isRealPath(char caminho[]);
+
+int carregaBootBlock();
+

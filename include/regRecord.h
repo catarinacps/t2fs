@@ -24,7 +24,7 @@ void nextRecord(REGRECORD *regR, REGMFT *regM);
 
 //passa para a entrada de diretorio anterior se puder e retorna 0, 1 caso contrario
 //ass:Nicolas
-int backRecord(REGRECORD *regR, REGMFT *regM);
+//int backRecord(REGRECORD *regR, REGMFT *regM);
 
 //----------------------------------------------------------------------------------------------
 /*Type

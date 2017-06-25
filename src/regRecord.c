@@ -1,11 +1,12 @@
 #include "../include/regRecord.h"
+#include "../include/regMFT.h"
 
 //carrega a primeira entrada de diretorio e seta o ponteiro para zero
 //ass:Nicolas
 void loadFirstRecord(REGRECORD *regR, REGMFT *regM){
-	read_sector(bootBlock.blocksize * regM.LBN , regR->data);
-	regR->pointer=0;	// qual dos 4 diretorios dentro do setor
-	regR->sectPointer=0; // qual dos 4 setores dentro do bloco
+	read_sector(bootBlock.blocksize * getLBN(regM) , regR->data);
+	regR->pointer = 0;	// qual dos 4 diretorios dentro do setor
+	regR->sectPointer = 0; // qual dos 4 setores dentro do bloco
 	regR->blkPointer = getLBN(regM); 
 }
 
@@ -14,28 +15,40 @@ void loadFirstRecord(REGRECORD *regR, REGMFT *regM){
 void nextRecord(REGRECORD *regR, REGMFT *regM){
 	int i;
 
-	if(regR->pointer < 3){
+	if(regR->pointer < 3){		// pode pegar 4 diretorios dentro de 1 setor
 		regR->pointer++;
 	}
 	else{
-		if(regR->sectPointer < bootBlock.blocksize-1){
+		if(regR->sectPointer < bootBlock.blocksize-1){	// pode pegar 4 setores dentro de 1 bloco (geralmente, depende do blocksize)
 			regR->pointer = 0;
 			regR->sectPointer++;
 			read_sector(bootBlock.blocksize * regR.blkPointer + regR.sectPointer , regR->data);
 		}
 		else{
-			if(regR.blkPointer - getLBN(regM) < getCont(regM) - 1){
+			if(regR.blkPointer - getLBN(regM) < getCont(regM) - 1){		// temos que pegar o proximo bloco, neste caso ele é contiguo na memoria (está na mesma tupla)
 				regR->blkPointer++;
+				regR->pointer = 0;
+				regR->sectPointer = 0;
 			}
-			else
+			else{			// temos que pegar o proximo bloco mas ele NAO está contiguo, entao pegar a proxima tupla
+				if(nextTupla(regM)== OK){
+					if(isTuplaChain == OK){
+						read_sector(bootBlock.blocksize * getLBN(regM) , regR->data);
+						regR->pointer = 0;	
+						regR->sectPointer = 0; 
+						regR->blkPointer = getLBN(regM);
+					}
+				}
+			}
 
-	}	
+		}	
 	
+	}
 }
 
 //passa para a entrada de diretorio anterior se puder e retorna 0, 1 caso contrario
 //ass:Nicolas
-int backRecord(REGRECORD *regR, REGMFT *regM);
+//int backRecord(REGRECORD *regR, REGMFT *regM);
 
 //----------------------------------------------------------------------------------------------
 /*Type
