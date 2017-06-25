@@ -65,3 +65,25 @@ int getBytesFileSize(REGRECORD regR);
 //retorna numero de registro MFT de reg
 //ass:Nicolas
 int getMFTNumber(REGRECORD regR);
+
+//----------------------------------------------------------------------------------------------
+
+//seta o tipo da entrada de diretorio.
+//ass:Gabriel
+int setRecordType(REGRECORD *regR, int type);
+
+//seta nome de reg, retorna OK se conseguiu, ERRO caso contrario
+//ass:Gabriel
+int setRecordName(REGRECORD *regR, char *buffer);
+
+//seta tamanho total em blocos de reg
+//ass:Gabriel
+int setBlocksFileSize(REGRECORD *regR, int size);
+
+//seta tamanho total em bytes de reg
+//ass:Gabriel
+int setBytesFileSize(REGRECORD *regR, int size);
+
+//seta numero de registro MFT de reg
+//ass:Gabriel
+int setMFTNumber(REGRECORD *regR, int numMFT);

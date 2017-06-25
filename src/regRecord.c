@@ -72,14 +72,10 @@ void nextRecord(REGRECORD *regR, REGMFT *regM){
 	 1: arquivo regular (file)
 	 2:	arquivo de diretorio (dir)
 */
-//retorna o tipo da entrada de diretorio. gg litle-endian
+//retorna o tipo da entrada de diretorio.
 //ass:Nicolas
 int getRecordType(REGRECORD regR){
-	int out=0;
-	for(int i=0;i<4;i++){
-		out+=regR.data[SIZERECORD*regR.pointer];
-	}
-	return out;
+	return regR.data[SIZERECORD*regR.pointer];
 }
 
 //retorna 1 se a entrada de diretorio indica registro livre, 0 caso contrario
@@ -146,3 +142,58 @@ int getMFTNumber(REGRECORD regR){
 	}
 	return out;
 }
+//-----------------------------------------------------------------------------------------
+//seta o tipo da entrada de diretorio.
+//ass:Gabriel
+int setRecordType(REGRECORD *regR, int type){
+	int out=0;
+	if(type >= 0 && type <= 2){
+		regR->data[SIZERECORD*regR->pointer]=(byte)type;		
+		
+		return OK;
+	}else{
+		return ERRO;
+	}
+}
+
+//seta nome de reg, retorna OK se conseguiu, ERRO caso contrario
+//ass:Gabriel
+int setRecordName(REGRECORD *regR, char *buffer){
+	
+	if(strcpy(regR.data[SIZERECORD*regR.pointer+1], buffer))
+		return OK;
+	else
+		return ERRO;
+}
+
+//seta tamanho total em blocos de reg
+//ass:Gabriel
+int setBlocksFileSize(REGRECORD *regR, int size){
+	for(int i=0;i<4;i++){
+		regR.data[SIZERECORD*regR.pointer + 52 + i] = (byte)(size/pow(256,i)); //magica logica aritmetica
+	}
+}
+
+//seta tamanho total em bytes de reg
+//ass:Gabriel
+int setBytesFileSize(REGRECORD *regR, int size){
+	for(int i=0;i<4;i++){
+		regR.data[SIZERECORD*regR.pointer + 56 + i] = (byte)(size/pow(256,i));
+	}
+}
+
+//seta numero de registro MFT de reg
+//ass:Gabriel
+int setMFTNumber(REGRECORD *regR, int numMFT){
+	for(int i=0;i<4;i++){
+		regR.data[SIZERECORD*regR.pointer + 60 + i] = (byte)(numMFT/pow(256,i));
+	}
+}
+
+
+
+
+
+
+
+

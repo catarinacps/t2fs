@@ -7,12 +7,26 @@ int identify2 (char *name, int size) {
 
 FILE2 create2 (char *filename) {
     int freeRegNum;
+	REGRECORD regR;
 
     if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename) == ERRO) {
         if ((freeRegNum = findFreeMFT()) != ERRO) {
-            
-        }
-    }
+            setRegType(freeRegNum,0);
+			for(int i=0; i<20; i++){
+				if(arquivosAbertos[i].estaAberto==OK){
+					arquivosAbertos[i].handle=handleUltraMasterGenerator++;
+					arquivosAbertos[i].numMFT=freeRegNum;
+					arquivosAbertos[i].currentPointer=0;
+					arquivosAbertos[i].estaAberto=OK;
+					
+					//achar registor do diretorio
+					//dar write sector
+					
+					return arquivosAbertos[i].handle;
+				}
+			}
+        }else return ERRO;
+    }else return ERRO;
 }
 
 int delete2 (char *filename) {

@@ -67,3 +67,7 @@ int getLBN(REGMFT reg);
 //ass:Gabriel
 int getCont(REGMFT reg);
 
+//seta o tipo na copia do registro
+//ass:Henrique
+int setRegType(int numMFT, int type);
+

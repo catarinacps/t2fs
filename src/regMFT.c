@@ -113,6 +113,8 @@ int getCont(REGMFT reg){
 
 //----------------------------------------------------------------------------------------------
 
+//seta o tipo na copia do registro
+//ass:Henrique
 int setRegType(int numMFT, int type) {
 	char buffer[SECTOR_SIZE];
 
@@ -121,12 +123,18 @@ int setRegType(int numMFT, int type) {
 
 		if (type != -1){
 			buffer[0] = (char) type;
+			buffer[1] = 0;
+			buffer[2] = 0;
+			buffer[3] = 0;
+			
 		} else {
 			buffer[0] = 0xFF;
 			buffer[1] = 0xFF;
 			buffer[2] = 0xFF;
 			buffer[3] = 0xFF;
 		}
+		write_sector(bootBlock.blockSize + numMFT*2, buffer);
+		return OK;
 	} else {
 		return ERRO;
 	}

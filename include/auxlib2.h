@@ -14,20 +14,21 @@ typedef struct {
     DIR2 handle;
     int numMFT;
     int currentPointer; //pode ficar maior ( ͡° ͜ʖ ͡°)
-    bool estaAberto;
+    int estaAberto;
 } ODIN;
 
 typedef struct {
     FILE2 handle;
     int numMFT;
     int currentPointer; //pode ficar maior ( ͡° ͜ʖ ͡°)²
-    bool estaAberto;
+    int estaAberto;
 } OFILE;
 
 struct t2fs_bootBlock bootBlock;
 
 OFILE arquivosAbertos[20];
 LISTA *diretoriosAbertos;
+int handleUltraMasterGenerator = 1;
 
 int openSpots();
 
