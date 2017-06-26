@@ -73,9 +73,9 @@ int isRealPath(char caminho[]) {
 }
 
 
-int fileExists(char caminho[], REGRECORD *regRout, REGMFT *regMout, int *nextRecordOutput) {
+int fileExists(char caminho[], REGRECORD *regRout, REGMFT *regMout, REGRECORD *regRout2) {
 	REGMFT regM;
-	REGRECORD regR;
+	REGRECORD regR, regR2=NULL;
 	char buffer[51], *token, *tokenAux;
 
 	loadMFT(&regM, 1);
@@ -87,23 +87,26 @@ int fileExists(char caminho[], REGRECORD *regRout, REGMFT *regMout, int *nextRec
 	if (token == NULL) {	//caminho invalido (root)
 		*regRout=regR;
 		*regMout=regM;
+		*regRout2=regR2;
 		return ERRO;
 	}
 	while (token = strtok(NULL, "/")) {
 		getRecordName(regR, buffer);
 		while (strcmp(buffer, tokenAux) != 0) {
-			if ( ( *nextRecordOutput = nextRecord(&regR, &regM) ) != OK) {
+			if ( ( *nextRecordOutput = nextRecord(&regR, &regM) ) == ERRO_EOF) {
 				*regRout=regR;	//o caminho esta erraado, ele nao achou um dos diretorios do caminho
 				*regMout=regM;
+				*regRout2=regR2;
 				return ERRO;
 			}
 			getRecordName(regR, buffer);
 		}
-
+		regR2=regR;
 		if (isRecordFile(regR) == OK) {
 			//ele achou um arquivo com o nome da pasta do caminho
 			*regRout=regR;
 			*regMout=regM;
+			*regRout2=regR2;
 			return ERRO;
 		}
 		loadMFT(&regM, getMFTNumber(regR));
@@ -113,9 +116,10 @@ int fileExists(char caminho[], REGRECORD *regRout, REGMFT *regMout, int *nextRec
 	
 	getRecordName(regR, buffer);
 	while (strcmp(buffer, tokenAux) != 0) {
-		if ( ( *nextRecordOutput = nextRecord(&regR, &regM) ) != OK) {
+		if ( ( *nextRecordOutput = nextRecord(&regR, &regM) ) == ERRO_EOF) {
 			*regRout=regR;		//ele achou o caminho mas nao achou o arquivo; regRout o ultimo arquivo da pasta
 			*regMout=regM;
+			*regRout2=regR2;
 			return MISSING_FILE;			//eh isso q a gnt quer no create
 		}
 		getRecordName(regR, buffer);
@@ -123,6 +127,7 @@ int fileExists(char caminho[], REGRECORD *regRout, REGMFT *regMout, int *nextRec
 
 	*regRout=regR;
 	*regMout=regM;
+	*regRout2=regR2;
 	if (isRecordFile(regR) == OK) {
 		return OK;
 	} else {

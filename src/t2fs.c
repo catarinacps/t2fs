@@ -6,12 +6,12 @@ int identify2 (char *name, int size) {
 }
 
 FILE2 create2 (char *filename) {
-    int freeRegNum, nextRecordOutput;
-	REGRECORD regR;
+    int freeRegNum;
+	REGRECORD regR, regAvo;
 	REGMFT regM;
 	char *token, *aux;
 
-    if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename, &regR, &regM, &nextRecordOutput) == MISSING_FILE) {
+    if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename, &regR, &regM, &regAvo) == MISSING_FILE) {
         if ((freeRegNum = findFreeMFT()) != ERRO) {
             setRegType(freeRegNum,0);
 			for(int i=0; i<20; i++){
@@ -28,7 +28,7 @@ FILE2 create2 (char *filename) {
 						token=strtok(NULL,"/");
 					}while(token!=NULL);
 					
-					writeNewFileRecord(aux, arquivosAbertos[i].numMFT, regR, regM, nextRecordOutput);
+					writeNewFileRecord(aux, arquivosAbertos[i].numMFT, &regR, &regM, &regAvo);
 					
 					//dar write sector
 					

@@ -9,6 +9,7 @@ void loadMFT(REGMFT *reg, int numMFT){
 	read_sector(bootBlock.blocksize+numMFT*2,reg->data);
 	read_sector(bootBlock.blocksize+numMFT*2+1,reg->data+SECTORSIZE);
 	reg->pointer=0;
+	reg->numMFT=numMFT;
 }
 
 //passa para a proxima tupla se puder e retorna 0, 1 caso contrario

@@ -18,6 +18,7 @@ typedef struct {
 	int pointer=0;	 //qual dos 4 diretorios dentro do setor
 	int sectPointer = 0;
 	int blkPointer = 0;
+	RECORDMFT regM;
 }REGRECORD;
 
 

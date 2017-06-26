@@ -11,6 +11,7 @@
 typedef struct {
 	byte data[SIZEREGMFT];
 	int pointer=0;
+	int numMFT;
 }REGMFT;
 
 //carrega um registro MFT indicado por numMFT e seta o ponteiro para zero
