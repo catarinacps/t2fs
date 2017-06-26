@@ -5,11 +5,18 @@
 
 #define SIZERECORD 64
 
+#define ERRO_MSM_SETOR -3
+#define ERRO_MSM_BLOCO -4
+#define ERRO_MSM_TUPLA -5
+#define ERRO_PROXIMA_TUPLA -6
+#define ERRO_PROXIMO_MFT -7
+#define ERRO_EOF -8
+
 
 typedef struct {
 	byte data[SECTOR_SIZE];
 	int pointer=0;	 //qual dos 4 diretorios dentro do setor
-	int dirPointer = 0;
+	int sectPointer = 0;
 	int blkPointer = 0;
 }REGRECORD;
 

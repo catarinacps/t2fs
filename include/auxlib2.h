@@ -5,7 +5,7 @@
 #include "t2fs.h"
 #include "regMFT.h"
 
-
+#define MISSING_FILE -2
 #define ERRO -1
 #define OK 0
 #define CARACTERES_VALIDOS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789"

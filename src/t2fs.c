@@ -6,20 +6,30 @@ int identify2 (char *name, int size) {
 }
 
 FILE2 create2 (char *filename) {
-    int freeRegNum;
+    int freeRegNum, nextRecordOutput;
 	REGRECORD regR;
+	REGMFT regM;
+	char *token, *aux;
 
-    if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename) == ERRO) {
+    if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename, &regR, &regM, &nextRecordOutput) == MISSING_FILE) {
         if ((freeRegNum = findFreeMFT()) != ERRO) {
             setRegType(freeRegNum,0);
 			for(int i=0; i<20; i++){
-				if(arquivosAbertos[i].estaAberto==OK){
+				if(arquivosAbertos[i].estaAberto==ERRO){
 					arquivosAbertos[i].handle=handleUltraMasterGenerator++;
 					arquivosAbertos[i].numMFT=freeRegNum;
 					arquivosAbertos[i].currentPointer=0;
 					arquivosAbertos[i].estaAberto=OK;
 					
-					//achar registor do diretorio
+					//achar registro do diretorio
+					token=strtok(filename,"/");
+					do{
+						aux=token;
+						token=strtok(NULL,"/");
+					}while(token!=NULL);
+					
+					writeNewFileRecord(aux, arquivosAbertos[i].numMFT, regR, regM, nextRecordOutput);
+					
 					//dar write sector
 					
 					return arquivosAbertos[i].handle;

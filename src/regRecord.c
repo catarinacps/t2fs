@@ -14,51 +14,97 @@ void loadFirstRecord(REGRECORD *regR, REGMFT regM){
 // a funcao e uma merda
 //ass:Nicolas
 void nextRecord(REGRECORD *regR, REGMFT *regM){
-	int i;
+	REGMFT regMaux;
 
 	if (regR->pointer < 3) {		// pode pegar 4 diretorios dentro de 1 setor
 		regR->pointer++;
+		if(isRecordFree(*regR)==OK){
+			regR->pointer--;
+			return ERRO_MSM_SETOR;
+		}else{
+			return OK;
+		}	
 	}
 	else {
 		if (regR->sectPointer < bootBlock.blocksize - 1) {	// pode pegar 4 setores dentro de 1 bloco (geralmente, depende do blocksize)
 			regR->pointer = 0;
 			regR->sectPointer++;
 			read_sector(bootBlock.blocksize * regR->blkPointer + regR->sectPointer , regR->data);
+			if(isRecordFree(*regR)==OK){
+				regR->sectPointer--;
+				regR->pointer=3;
+				read_sector(bootBlock.blocksize * regR->blkPointer + regR->sectPointer , regR->data);
+				return ERRO_MSM_BLOCO;
+			}else{
+				return OK;
+			}
 		}
 		else {
 			if (regR->blkPointer - getLBN(*regM) < getCont(*regM) - 1) {		// temos que pegar o proximo bloco, neste caso ele é contiguo na memoria (está na mesma tupla)
 				regR->blkPointer++;
 				regR->pointer = 0;
 				regR->sectPointer = 0;
+				read_sector(bootBlock.blocksize * regR->blkPointer + regR->sectPointer , regR->data);
+				if(isRecordFree(*regR)==OK){
+					regR->blkPointer--;
+					regR->sectPointer=3;
+					regR->pointer=3;
+					read_sector(bootBlock.blocksize * regR->blkPointer + regR->sectPointer , regR->data);
+					return ERRO_MSM_TUPLA;
+				}else{
+					return OK;
+				}	
 			}
 			else {			// temos que pegar o proximo bloco mas ele NAO está contiguo, entao pegar a proxima tupla
 				if (nextTupla(regM) == OK) {
 					if (isTuplaChain(*regM) == OK) {
-						read_sector(bootBlock.blocksize * getLBN(*regM), regR->data);
 						regR->pointer = 0;
 						regR->sectPointer = 0;
 						regR->blkPointer = getLBN(*regM);
+						read_sector(bootBlock.blocksize * regR->blkPointer + regR->sectPointer , regR->data);
+						if(isRecordFree(*regR)==OK){
+							backTupla(regM);
+							regR->blkPointer=getLBN(*regM)+getCont(*regM)-1;
+							regR->sectPointer=3;
+							regR->pointer=3;
+							read_sector(bootBlock.blocksize * regR->blkPointer + regR->sectPointer , regR->data);
+							return ERRO_PROXIMA_TUPLA;
+						}else{
+							return OK;
+						}
 					} else if (isTuplaJmp(*regM) == OK) {		// puta merda q troco feio
+						regMaux = *regM;
 						loadMFT(regM, getVBN(*regM));			// pega o registro adicional
 
 						if (isTuplaChain(*regM) == OK) {
-							read_sector(bootBlock.blocksize * getLBN(*regM), regR->data);
 							regR->pointer = 0;
 							regR->sectPointer = 0;
 							regR->blkPointer = getLBN(*regM);
+							read_sector(bootBlock.blocksize * regR->blkPointer + regR->sectPointer , regR->data);
+							if(isRecordFree(*regR)==OK){
+								*regM=regMaux;
+								regR->blkPointer=getLBN(*regM)+getCont(*regM)-1;
+								regR->sectPointer=3;
+								regR->pointer=3;
+								read_sector(bootBlock.blocksize * regR->blkPointer + regR->sectPointer , regR->data);
+								return ERRO_PROXIMO_MFT;
+							}else{
+								return OK;
+							}
 						} else {
-							return ERRO;
+							*regM=regMaux;
+							return ERRO; //sera q cai aki? acho q nao
 						}
 					} else {
-						return ERRO;
+						backTupla(regM);
+						return ERRO_EOF;
 					}
 				} else {
-					return ERRO;
+					return ERRO;	//nunca vai chegar aki ;-)
 				}
 			}
 		}	
 	}
-
 	return OK;
 }
 
@@ -81,7 +127,7 @@ int getRecordType(REGRECORD regR){
 //retorna 1 se a entrada de diretorio indica registro livre, 0 caso contrario
 //ass:Nicolas
 int isRecordFree(REGRECORD regR){
-	if(getRecordType(regR)==0)
+	if(getRecordType(regR)!=1 && getRecordType(regR)!=2)
 		return OK;
 	else return ERRO;
 }
@@ -188,6 +234,49 @@ int setMFTNumber(REGRECORD *regR, int numMFT){
 	for(int i=0;i<4;i++){
 		regR.data[SIZERECORD*regR.pointer + 60 + i] = (byte)(numMFT/pow(256,i));
 	}
+}
+
+int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, int nextRecordOutput){
+	
+	switch(nextRecordOutput){
+		case ERRO_MSM_SETOR:{
+			regR->pointer++;
+		}
+		break;
+		case ERRO_MSM_BLOCO:{
+			regR->sectPointer++;
+			regR->pointer=0;
+		}
+		break;	//a partir daqui tem q achar bloco novo
+		case ERRO_MSM_TUPLA:{
+			regR->blkPointer++;
+			regR->sectPointer=0;
+			regR->pointer=0;
+		}
+		break;
+		case ERRO_PROXIMA_TUPLA:{
+			nextTupla(regM);
+			regR->blkPointer=getLBN(*regM);
+			regR->sectPointer=0;
+			regR->pointer=0;
+		}
+		break;
+		case ERRO_PROXIMO_MFT:{
+			loadMFT(regM, getVBN(*regM));
+			regR->pointer = 0;
+			regR->sectPointer = 0;
+			regR->blkPointer = getLBN(*regM);
+		}
+		break;
+		case ERRO_EOF:{
+			//nao precisa nada ?
+		}
+		break;
+		default:
+			printf("algo deu errado no switch");
+			return ERRO;
+	}
+	
 }
 
 

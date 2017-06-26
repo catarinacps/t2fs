@@ -32,13 +32,7 @@ int isValidPath(char caminho[]) {
         }
         token = strtok(NULL, "/"); //NULL pq nicolas disse
     }
-	
-    // preicerolder
-    // voltar aqui dps de fazer interface com o disco. a grafica. sim.
-	// os nomes parecem ok, agora vamos testar se as pastas realmente existem
-	
-	return isRealPath(caminho);
-	
+	return OK;
 }
 
 // seu lugar e no museu
@@ -78,7 +72,8 @@ int isRealPath(char caminho[]) {
 	return OK;
 }
 
-int fileExists(char caminho[]) {
+
+int fileExists(char caminho[], REGRECORD *regRout, REGMFT *regMout, int *nextRecordOutput) {
 	REGMFT regM;
 	REGRECORD regR;
 	char buffer[51], *token, *tokenAux;
@@ -89,34 +84,45 @@ int fileExists(char caminho[]) {
 	token = strtok(caminho, "/");
 	tokenAux = token;
 
-	if (token == NULL) {
+	if (token == NULL) {	//caminho invalido (root)
+		*regRout=regR;
+		*regMout=regM;
 		return ERRO;
 	}
 	while (token = strtok(NULL, "/")) {
 		getRecordName(regR, buffer);
 		while (strcmp(buffer, tokenAux) != 0) {
-			if (nextRecord(&regR, &regM) == ERRO) {
+			if ( ( *nextRecordOutput = nextRecord(&regR, &regM) ) != OK) {
+				*regRout=regR;	//o caminho esta erraado, ele nao achou um dos diretorios do caminho
+				*regMout=regM;
 				return ERRO;
 			}
 			getRecordName(regR, buffer);
 		}
 
 		if (isRecordFile(regR) == OK) {
+			//ele achou um arquivo com o nome da pasta do caminho
+			*regRout=regR;
+			*regMout=regM;
 			return ERRO;
 		}
 		loadMFT(&regM, getMFTNumber(regR));
 		loadFirstRecord(&regR, regM);
 		tokenAux = token;
 	}
-
+	
 	getRecordName(regR, buffer);
 	while (strcmp(buffer, tokenAux) != 0) {
-		if (nextRecord(&regR, &regM) == ERRO) {
-			return ERRO;
+		if ( ( *nextRecordOutput = nextRecord(&regR, &regM) ) != OK) {
+			*regRout=regR;		//ele achou o caminho mas nao achou o arquivo; regRout o ultimo arquivo da pasta
+			*regMout=regM;
+			return MISSING_FILE;			//eh isso q a gnt quer no create
 		}
 		getRecordName(regR, buffer);
 	}
 
+	*regRout=regR;
+	*regMout=regM;
 	if (isRecordFile(regR) == OK) {
 		return OK;
 	} else {
