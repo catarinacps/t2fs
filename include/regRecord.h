@@ -95,3 +95,6 @@ int setBytesFileSize(REGRECORD *regR, int size);
 //seta numero de registro MFT de reg
 //ass:Gabriel
 int setMFTNumber(REGRECORD *regR, int numMFT);
+
+//ass:Gabriel
+int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo);

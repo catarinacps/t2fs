@@ -188,5 +188,62 @@ int setRegCont(int numMFT , int cont, int numTupla){
 	
 }
 
+int setLBN(int numMFT, int lbn, int numTupla){
+	char buffer[SECTOR_SIZE];
+	
+	if(lbn > 0){
+		if(numTupla >= NUMTUPLAS/2){
+			read_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+		}
+		else{
+			read_sector(bootBlock.blockSize + numMFT*2, buffer);
+		}
+		
+		for (int i=0; i<4; i++) {
+			buffer[numTupla*16 + 8 + i] = (byte)(lbn/pow(256,i));
+		}	
 
+	
+		if(numTupla >= NUMTUPLAS/2){
+			write_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+		}
+		else{
+			write_sector(bootBlock.blockSize + numMFT*2, buffer);
+		}
+		
+		return OK;
+	}
+	else{
+		return ERRO;
+	}
+}
 
+int setVBN(int numMFT, int vbn, int numTupla){
+	char buffer[SECTOR_SIZE];
+	
+	if(vbn > 0){
+		if(numTupla >= NUMTUPLAS/2){
+			read_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+		}
+		else{
+			read_sector(bootBlock.blockSize + numMFT*2, buffer);
+		}
+		
+		for (int i=0; i<4; i++) {
+			buffer[numTupla*16 + 4 + i] = (byte)(vbn/pow(256,i));
+		}	
+
+	
+		if(numTupla >= NUMTUPLAS/2){
+			write_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+		}
+		else{
+			write_sector(bootBlock.blockSize + numMFT*2, buffer);
+		}
+		
+		return OK;
+	}
+	else{
+		return ERRO;
+	}
+}

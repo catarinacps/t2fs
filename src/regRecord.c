@@ -1,9 +1,11 @@
 #include "../include/regRecord.h"
 #include "../include/regMFT.h"
 #include "../include/bitmap2.h"
+#include "../include/t2fs.h"
+#include "../include/auxlib2.h"
 
-//carrega a primeira entrada de diretorio e seta o ponteiro para zero
-//ass:Nicolas
+// carrega a primeira entrada de diretorio e seta o ponteiro para zero
+// ass:Nicolas
 void loadFirstRecord(REGRECORD *regR, REGMFT regM){
 	read_sector(bootBlock.blocksize * getLBN(regM) , regR->data);
 	regR->pointer = 0;	// qual dos 4 diretorios dentro do setor
@@ -14,7 +16,7 @@ void loadFirstRecord(REGRECORD *regR, REGMFT regM){
 
 // passa para a proxima entrada de diretorio se puder
 // a funcao e uma merda
-//ass:Nicolas
+// ass:Nicolas
 void nextRecord(REGRECORD *regR, REGMFT *regM){
 
 	if (regR->pointer < 3) {		// pode pegar 4 diretorios dentro de 1 setor
@@ -198,31 +200,107 @@ int setMFTNumber(REGRECORD *regR, int numMFT){
 }
 
 //ass:Gabriel
-int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo){	//so usamos numMFT de regM
+int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo) {	//so usamos numMFT de regM
 	REGMFT regM2;
 	REGRECORD regR2;
+	unsigned char buffer[SECTOR_SIZE];
+	bool flagEOF = FALSE;
+	int numFreeBlock, currentVBN, numFreeMFT;
+
+	loadMFT(&regM2, regM->numMFT);
+	loadFirstRecord(&regR2, regM2);
 	
-	loadMTF(&regM2,regM->numMFT);
-	loadFirstRecord(&regR2,regM2);
-	
-	while(isRecordFree(regR2)==ERRO){
-		if(nextRecord(&regR2,&regM2)==ERRO_EOF){
-			//TODO: coisas mto loucas
-			if(getBitmap2(getLBN(regM)+getCont(regM)) == 0){
-				setBitmap2(getLBN(regM)+getCont(regM) , 1);
-				
+	while (isRecordFree(regR2) == ERRO && flagEOF != 1) {
+		if (nextRecord(&regR2, &regM2) == ERRO_EOF) {
+			flagEOF = TRUE;
+
+			if (getBitmap2(getLBN(regM2) + getCont(regM2)) == 0) {		// achamos um novo bloco, formatamos ele e escrevemos ele
+				setBitmap2(getLBN(regM2) + getCont(regM2), 1);
+				setRegCont(regM2.numMFT, getCont(regM2) + 1, regM2.pointer);	// a partir daqui, regM2 esta desatualizado pra kct mlk
+
+				for (int i=0; i < 4; i++) {
+					read_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+					for (int j=0; j < 4; j++) {
+						buffer[SIZERECORD * j] = 0;
+						buffer[SIZERECORD * j + 1] = 0;
+						buffer[SIZERECORD * j + 2] = 0;
+						buffer[SIZERECORD * j + 3] = 0;
+					}
+					write_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+				}
+			} else {
+				if ((numFreeBlock = searchBitmap2(0)) > 0) {
+					if (regM2.pointer < (NUMTUPLAS - 2)) {
+						setBitmap2(numFreeBlock, 1);	// agora o bloco numFreeBlock esta ocupado no bitmap
+
+						currentVBN = getVBN(regM2) + getCont(regM2);
+						nextTupla(&regM2);
+						setRegType(regM2.numMFT, 1, regM2.pointer);
+						setVBN(regM2.numMFT, currentVBN, regM2.pointer);
+						setLBN(regM2.numMFT, numFreeBlock, regM2.pointer);
+						setRegCont(regM2.numMFT, 1, regM2.pointer);
+
+						nextTupla(&regM2);
+						setRegType(regM2.numMFT, 0, regM2.pointer);
+						backTupla(&regM2);
+
+						for (int i=0; i < 4; i++) {
+							read_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+							for (int j=0; j < 4; j++) {
+								buffer[SIZERECORD * j] = 0;
+								buffer[SIZERECORD * j + 1] = 0;
+								buffer[SIZERECORD * j + 2] = 0;
+								buffer[SIZERECORD * j + 3] = 0;
+							}
+							write_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+						}
+					} else {
+						if ((numFreeMFT = findFreeMFT()) > 0) {
+							currentVBN = getVBN(regM2) + getCont(regM2);
+
+							nextTupla(&regM2);
+							setRegType(regM2.numMFT, 2, regM2.pointer);
+							setVBN(regM2.numMFT, numFreeMFT, regM2.pointer);
+							loadMFT(&regM2, numFreeMFT);
+
+							setBitmap2(numFreeBlock, 1);	// agora o bloco numFreeBlock esta ocupado no bitmap
+
+							setRegType(regM2.numMFT, 1, regM2.pointer);
+							setVBN(regM2.numMFT, currentVBN, regM2.pointer);
+							setLBN(regM2.numMFT, numFreeBlock, regM2.pointer);
+							setRegCont(regM2.numMFT, 1, regM2.pointer);
+
+							nextTupla(&regM2);
+							setRegType(regM2.numMFT, 0, regM2.pointer);
+							backTupla(&regM2);
+
+							for (int i=0; i < 4; i++) {
+								read_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+								for (int j=0; j < 4; j++) {
+									buffer[SIZERECORD * j] = 0;
+									buffer[SIZERECORD * j + 1] = 0;
+									buffer[SIZERECORD * j + 2] = 0;
+									buffer[SIZERECORD * j + 3] = 0;
+								}
+								write_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+							}
+						}
+					}
+				} else {
+					printf("bah deu mto ruim foi mal ae\n");
+					return ERRO;
+				}
 			}
-			
 		}
 	}
 	//aki regR2 tem um registro livre
-	setRecordType(&regR2,1);
-	setRecordName(&regR2,name);
-	setBlocksFileSize(&regR2,0);
-	setBytesFileSize(&regR2,0);
-	setMFTNumber(&regR2,numMFT);
+	setRecordType(&regR2, 1);
+	setRecordName(&regR2, name);
+	setBlocksFileSize(&regR2, 0);
+	setBytesFileSize(&regR2, 0);
+	setMFTNumber(&regR2, numMFT);
 	
-	write_sector(regR2->blkPointer * bootBlock->blockSize + regR2->sectPointer, regR2->data);
+	write_sector(regR2->blkPointer * bootBlock.blockSize + regR2->sectPointer, regR2->data);
 	
 	//falta atualizar o registro da pasta na pasta pai
 	if(regAvo != NULL){

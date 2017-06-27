@@ -14,19 +14,19 @@ FILE2 create2 (char *filename) {
     if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename, &regR, &regM, &regAvo) == MISSING_FILE) {
         if ((freeRegNum = findFreeMFT()) != ERRO) {
             setRegType(freeRegNum,0);
-			for(int i=0; i<20; i++){
-				if(arquivosAbertos[i].estaAberto==ERRO){
-					arquivosAbertos[i].handle=handleUltraMasterGenerator++;
-					arquivosAbertos[i].numMFT=freeRegNum;
-					arquivosAbertos[i].currentPointer=0;
-					arquivosAbertos[i].estaAberto=OK;
+			for (int i=0; i<20; i++){
+				if (arquivosAbertos[i].estaAberto == ERRO) {
+					arquivosAbertos[i].handle = handleUltraMasterGenerator++;
+					arquivosAbertos[i].numMFT = freeRegNum;
+					arquivosAbertos[i].currentPointer = 0;
+					arquivosAbertos[i].estaAberto = OK;
 					
 					//achar registro do diretorio
-					token=strtok(filename,"/");
-					do{
-						aux=token;
-						token=strtok(NULL,"/");
-					}while(token!=NULL);
+					token = strtok(filename,"/");
+					do {
+						aux = token;
+						token = strtok(NULL,"/");
+					} while(token!=NULL);
 					
 					writeNewFileRecord(aux, arquivosAbertos[i].numMFT, &regR, &regM, &regAvo);
 					
@@ -35,8 +35,12 @@ FILE2 create2 (char *filename) {
 					return arquivosAbertos[i].handle;
 				}
 			}
-        }else return ERRO;
-    }else return ERRO;
+        } else { 
+			return ERRO;
+		}
+    } else {
+		return ERRO;
+	}
 }
 
 int delete2 (char *filename) {

@@ -70,5 +70,14 @@ int getCont(REGMFT reg);
 
 //seta o tipo na copia do registro
 //ass:Henrique
-int setRegType(int numMFT, int type);
+int setRegType(int numMFT, int type, int numTupla);
 
+//seta numero de blocos contiguos do registro
+//ass:Nicolas
+int setRegCont(int numMFT , int cont, int numTupla);
+
+// bunda: henrique
+int setLBN(int numMFT, int lbn, int numTupla);
+
+// bunda: henrique
+int setVBN(int numMFT, int vbn, int numTupla);
