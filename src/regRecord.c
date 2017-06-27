@@ -1,5 +1,6 @@
 #include "../include/regRecord.h"
 #include "../include/regMFT.h"
+#include "../include/bitmap2.h"
 
 //carrega a primeira entrada de diretorio e seta o ponteiro para zero
 //ass:Nicolas
@@ -166,7 +167,7 @@ int setRecordType(REGRECORD *regR, int type){
 //ass:Gabriel
 int setRecordName(REGRECORD *regR, char *buffer){
 	
-	if(strcpy(regR.data[SIZERECORD*regR.pointer+1], buffer))
+	if(strcpy(regR->data[SIZERECORD*regR->pointer+1], buffer))
 		return OK;
 	else
 		return ERRO;
@@ -176,7 +177,7 @@ int setRecordName(REGRECORD *regR, char *buffer){
 //ass:Gabriel
 int setBlocksFileSize(REGRECORD *regR, int size){
 	for(int i=0;i<4;i++){
-		regR.data[SIZERECORD*regR.pointer + 52 + i] = (byte)(size/pow(256,i)); //magica logica aritmetica
+		regR->data[SIZERECORD*regR->pointer + 52 + i] = (byte)(size/pow(256,i)); //magica logica aritmetica
 	}
 }
 
@@ -184,7 +185,7 @@ int setBlocksFileSize(REGRECORD *regR, int size){
 //ass:Gabriel
 int setBytesFileSize(REGRECORD *regR, int size){
 	for(int i=0;i<4;i++){
-		regR.data[SIZERECORD*regR.pointer + 56 + i] = (byte)(size/pow(256,i));
+		regR->data[SIZERECORD*regR->pointer + 56 + i] = (byte)(size/pow(256,i));
 	}
 }
 
@@ -192,7 +193,7 @@ int setBytesFileSize(REGRECORD *regR, int size){
 //ass:Gabriel
 int setMFTNumber(REGRECORD *regR, int numMFT){
 	for(int i=0;i<4;i++){
-		regR.data[SIZERECORD*regR.pointer + 60 + i] = (byte)(numMFT/pow(256,i));
+		regR->data[SIZERECORD*regR->pointer + 60 + i] = (byte)(numMFT/pow(256,i));
 	}
 }
 
@@ -207,6 +208,11 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 	while(isRecordFree(regR2)==ERRO){
 		if(nextRecord(&regR2,&regM2)==ERRO_EOF){
 			//TODO: coisas mto loucas
+			if(getBitmap2(getLBN(regM)+getCont(regM)) == 0){
+				setBitmap2(getLBN(regM)+getCont(regM) , 1);
+				
+			}
+			
 		}
 	}
 	//aki regR2 tem um registro livre
@@ -219,9 +225,13 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 	write_sector(regR2->blkPointer * bootBlock->blockSize + regR2->sectPointer, regR2->data);
 	
 	//falta atualizar o registro da pasta na pasta pai
-	setBytesFileSize(regAvo, getBytesFileSize(*regAvo) + SIZERECORD);
-	write_sector(regAvo->blkPointer * bootBllock.blockSize + regAvo->sectPointer, regAvo->data);
+	if(regAvo != NULL){
+		setBytesFileSize(regAvo, getBytesFileSize(*regAvo) + SIZERECORD);
+		write_sector(regAvo->blkPointer * bootBllock.blockSize + regAvo->sectPointer, regAvo->data);
+	}
+	
 	return OK;
+	
 }
 
 

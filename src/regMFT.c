@@ -116,27 +116,77 @@ int getCont(REGMFT reg){
 
 //seta o tipo na copia do registro
 //ass:Henrique
-int setRegType(int numMFT, int type) {
+int setRegType(int numMFT, int type, int numTupla) {
 	char buffer[SECTOR_SIZE];
 
 	if (type <= 2 && type >= -1) {
-		read_sector(bootBlock.blockSize + numMFT*2, buffer);
+		if(numTupla >= NUMTUPLAS/2){
+			read_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+		}
+		else{
+			read_sector(bootBlock.blockSize + numMFT*2, buffer);
+		}
+		
 
 		if (type != -1){
-			buffer[0] = (char) type;
-			buffer[1] = 0;
-			buffer[2] = 0;
-			buffer[3] = 0;
+			buffer[numTupla*16] = (char) type;
+			buffer[numTupla*16 + 1] = 0;
+			buffer[numTupla*16 + 2] = 0;
+			buffer[numTupla*16 + 3] = 0;
 			
 		} else {
-			buffer[0] = 0xFF;
-			buffer[1] = 0xFF;
-			buffer[2] = 0xFF;
-			buffer[3] = 0xFF;
+			buffer[numTupla*16] = 0xFF;
+			buffer[numTupla*16 + 1] = 0xFF;
+			buffer[numTupla*16 + 2] = 0xFF;
+			buffer[numTupla*16 + 3] = 0xFF;
 		}
-		write_sector(bootBlock.blockSize + numMFT*2, buffer);
+		
+		
+		if(numTupla >= NUMTUPLAS/2){
+			write_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+		}
+		else{
+			write_sector(bootBlock.blockSize + numMFT*2, buffer);
+		}
+		
 		return OK;
 	} else {
 		return ERRO;
 	}
 }
+
+//seta numero de blocos contiguos do registro
+//ass:Nicolas
+int setRegCont(int numMFT , int cont, int numTupla){
+	char buffer[SECTOR_SIZE];
+	
+	if(cont > 0){
+		if(numTupla >= NUMTUPLAS/2){
+			read_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+		}
+		else{
+			read_sector(bootBlock.blockSize + numMFT*2, buffer);
+		}
+		
+		for (int i=0; i<4; i++) {
+			buffer[numTupla*16 + 12 + i] = (byte)(cont/pow(256,i));
+		}	
+
+	
+		if(numTupla >= NUMTUPLAS/2){
+			write_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+		}
+		else{
+			write_sector(bootBlock.blockSize + numMFT*2, buffer);
+		}
+		
+		return OK;
+	}
+	else{
+		return ERRO;
+	}
+	
+}
+
+
+
