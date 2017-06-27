@@ -1,7 +1,10 @@
 #include <stdio.h>
-#include "../include/diskio.h"
-#include "../include/auxlib2.h"
-#include "../include/apidisk.h"
+
+#include "auxlib2.h"
+#include "apidisk.h"
+#include "regMFT.h"
+#include "bitmap2.h"
+#include "t2fs.h"
 
 #define SIZERECORD 64
 

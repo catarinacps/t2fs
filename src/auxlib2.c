@@ -1,7 +1,4 @@
 #include "../include/auxlib2.h"
-#include "../include/diskio.h"
-#include "../include/regMFT.h"
-#include "../include/regRecord.h"
 
 //BLANK SPACE
 //ass:Henrique

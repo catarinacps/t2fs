@@ -1,6 +1,5 @@
-#include <math.h>
 #include "../include/regMFT.h"
-#include "../include/apidisk.h"
+
 
 //carrega um registro MFT indicado por numMFT e seta o ponteiro para zero
 //considera que o tamanho de um registro eh dois setores

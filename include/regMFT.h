@@ -1,7 +1,9 @@
 #include <stdio.h>
-#include "../include/diskio.h"
-#include "../include/auxlib2.h"
-#include "../include/apidisk.h"
+#include <math.h>
+
+#include "diskio.h"
+#include "auxlib2.h"
+#include "apidisk.h"
 
 
 #define SIZEREGMFT 512

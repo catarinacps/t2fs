@@ -4,6 +4,7 @@
 #include "lista.h"
 #include "t2fs.h"
 #include "regMFT.h"
+#include "regRecord.h"
 
 #define MISSING_FILE -2
 #define ERRO -1

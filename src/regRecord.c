@@ -1,8 +1,4 @@
 #include "../include/regRecord.h"
-#include "../include/regMFT.h"
-#include "../include/bitmap2.h"
-#include "../include/t2fs.h"
-#include "../include/auxlib2.h"
 
 // carrega a primeira entrada de diretorio e seta o ponteiro para zero
 // ass:Nicolas
