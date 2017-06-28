@@ -1,29 +1,32 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "diskio.h"
-#include "auxlib2.h"
+//#include "auxlib2.h"
 #include "apidisk.h"
 
-
+#define SECTORSIZE 256
 #define SIZEREGMFT 512
 #define SIZETUPLA 16
 #define NUMTUPLAS 32
+#define ERRO -1
+#define OK 0
 
 typedef struct {
-	byte data[SIZEREGMFT];
-	int pointer=0;
+	unsigned char data[SIZEREGMFT];
+	int pointer;
 	int numMFT;
 }REGMFT;
+
+int blockSize;
 
 //carrega um registro MFT indicado por numMFT e seta o ponteiro para zero
 //considera que o tamanho de um registro eh dois setores
 //ass:Gabriel
-void loadMFT(REGMFT *reg, int numMFT);
+void loadMFT(REGMFT *reg, int numMFT, int blkSize);
 
 //passa para a proxima tupla se puder e retorna 0, 1 caso contrario
 //ass:Gabriel
-void nextTupla(REGMFT *reg);
+int nextTupla(REGMFT *reg);
 
 //passa para a tupla anterior se puder e retorna 0, 1 caso contrario
 //ass:Gabriel

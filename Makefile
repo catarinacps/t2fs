@@ -13,7 +13,7 @@
 #	Flags de compilaçao. Debug para uso no GDB
 CC = gcc
 DEBUG = -g
-CFLAGS = -I$(INC_DIR) -Wall $(DEBUG) -o2
+CFLAGS = -I$(INC_DIR) -Wall $(DEBUG)
 
 #	Diretorios do projeto
 INC_DIR = include
@@ -25,11 +25,11 @@ SRC_DIR = src
 TARGET = $(LIB_DIR)/libt2fs.a
 
 #	Dependencias, ou seja, arquivos de header
-_DEPS = bitmap2.h apidisk.h t2fs.h regMFT.h regRecord.h auxlib2.h
+_DEPS = bitmap2.h apidisk.h t2fs.h regMFT.h regRecord.h auxlib2.h lista.h
 DEPS = $(patsubst %,$(INC_DIR)/%,$(_DEPS))
 
 #	Objetos a serem criados
-_OBJ = t2fs.o regMFT.o regRecord.o auxlib2.o
+_OBJ = t2fs.o regMFT.o regRecord.o auxlib2.o lista.o
 OBJ = $(patsubst %,$(OBJ_DIR)/%,$(_OBJ))
 
 #	Exceções para a regra "clean"

@@ -2,18 +2,18 @@
 #include "../include/auxlib2.h"
 
 int identify2 (char *name, int size) {
-    
+    return 0;
 }
 
 FILE2 create2 (char *filename) {
     int freeRegNum;
-	REGRECORD regR, regAvo;
+	REGRECORD *regR, *regAvo;
 	REGMFT regM;
 	char *token, *aux;
 
     if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename, &regR, &regM, &regAvo) == MISSING_FILE) {
         if ((freeRegNum = findFreeMFT()) != ERRO) {
-            setRegType(freeRegNum,0);
+            setRegType(freeRegNum,0,0);
 			for (int i=0; i<20; i++){
 				if (arquivosAbertos[i].estaAberto == ERRO) {
 					arquivosAbertos[i].handle = handleUltraMasterGenerator++;
@@ -28,13 +28,14 @@ FILE2 create2 (char *filename) {
 						token = strtok(NULL,"/");
 					} while(token!=NULL);
 					
-					writeNewFileRecord(aux, arquivosAbertos[i].numMFT, &regR, &regM, &regAvo);
+					writeNewFileRecord(aux, arquivosAbertos[i].numMFT, regR, &regM, regAvo);
 					
 					//dar write sector
 					
 					return arquivosAbertos[i].handle;
 				}
 			}
+			return ERRO; //nunca chegará aki
         } else { 
 			return ERRO;
 		}

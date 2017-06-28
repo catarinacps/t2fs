@@ -4,16 +4,17 @@
 //carrega um registro MFT indicado por numMFT e seta o ponteiro para zero
 //considera que o tamanho de um registro eh dois setores
 //ass:Gabriel
-void loadMFT(REGMFT *reg, int numMFT){
-	read_sector(bootBlock.blocksize+numMFT*2,reg->data);
-	read_sector(bootBlock.blocksize+numMFT*2+1,reg->data+SECTORSIZE);
+void loadMFT(REGMFT *reg, int numMFT, int blkSize){
+	blockSize=blkSize;
+	read_sector(blockSize+numMFT*2,reg->data);
+	read_sector(blockSize+numMFT*2+1,reg->data+SECTORSIZE);
 	reg->pointer=0;
 	reg->numMFT=numMFT;
 }
 
 //passa para a proxima tupla se puder e retorna 0, 1 caso contrario
 //ass:Gabriel
-void nextTupla(REGMFT *reg){
+int nextTupla(REGMFT *reg){
 	if(reg->pointer<NUMTUPLAS-1){
 			reg->pointer++;
 			return OK;
@@ -116,14 +117,14 @@ int getCont(REGMFT reg){
 //seta o tipo na copia do registro
 //ass:Henrique
 int setRegType(int numMFT, int type, int numTupla) {
-	char buffer[SECTOR_SIZE];
+	unsigned char buffer[SECTOR_SIZE];
 
 	if (type <= 2 && type >= -1) {
 		if(numTupla >= NUMTUPLAS/2){
-			read_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+			read_sector(blockSize + numMFT*2 + 1, buffer);
 		}
 		else{
-			read_sector(bootBlock.blockSize + numMFT*2, buffer);
+			read_sector(blockSize + numMFT*2, buffer);
 		}
 		
 
@@ -142,10 +143,10 @@ int setRegType(int numMFT, int type, int numTupla) {
 		
 		
 		if(numTupla >= NUMTUPLAS/2){
-			write_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+			write_sector(blockSize + numMFT*2 + 1, buffer);
 		}
 		else{
-			write_sector(bootBlock.blockSize + numMFT*2, buffer);
+			write_sector(blockSize + numMFT*2, buffer);
 		}
 		
 		return OK;
@@ -157,26 +158,26 @@ int setRegType(int numMFT, int type, int numTupla) {
 //seta numero de blocos contiguos do registro
 //ass:Nicolas
 int setRegCont(int numMFT , int cont, int numTupla){
-	char buffer[SECTOR_SIZE];
+	unsigned char buffer[SECTOR_SIZE];
 	
 	if(cont > 0){
 		if(numTupla >= NUMTUPLAS/2){
-			read_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+			read_sector(blockSize + numMFT*2 + 1, buffer);
 		}
 		else{
-			read_sector(bootBlock.blockSize + numMFT*2, buffer);
+			read_sector(blockSize + numMFT*2, buffer);
 		}
 		
 		for (int i=0; i<4; i++) {
-			buffer[numTupla*16 + 12 + i] = (byte)(cont/pow(256,i));
+			buffer[numTupla*16 + 12 + i] = (char)(cont/pow(256,i));
 		}	
 
 	
 		if(numTupla >= NUMTUPLAS/2){
-			write_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+			write_sector(blockSize + numMFT*2 + 1, buffer);
 		}
 		else{
-			write_sector(bootBlock.blockSize + numMFT*2, buffer);
+			write_sector(blockSize + numMFT*2, buffer);
 		}
 		
 		return OK;
@@ -188,26 +189,26 @@ int setRegCont(int numMFT , int cont, int numTupla){
 }
 
 int setLBN(int numMFT, int lbn, int numTupla){
-	char buffer[SECTOR_SIZE];
+	unsigned char buffer[SECTOR_SIZE];
 	
 	if(lbn > 0){
 		if(numTupla >= NUMTUPLAS/2){
-			read_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+			read_sector(blockSize + numMFT*2 + 1, buffer);
 		}
 		else{
-			read_sector(bootBlock.blockSize + numMFT*2, buffer);
+			read_sector(blockSize + numMFT*2, buffer);
 		}
 		
 		for (int i=0; i<4; i++) {
-			buffer[numTupla*16 + 8 + i] = (byte)(lbn/pow(256,i));
+			buffer[numTupla*16 + 8 + i] = (char)(lbn/pow(256,i));
 		}	
 
 	
 		if(numTupla >= NUMTUPLAS/2){
-			write_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+			write_sector(blockSize + numMFT*2 + 1, buffer);
 		}
 		else{
-			write_sector(bootBlock.blockSize + numMFT*2, buffer);
+			write_sector(blockSize + numMFT*2, buffer);
 		}
 		
 		return OK;
@@ -218,26 +219,26 @@ int setLBN(int numMFT, int lbn, int numTupla){
 }
 
 int setVBN(int numMFT, int vbn, int numTupla){
-	char buffer[SECTOR_SIZE];
+	unsigned char buffer[SECTOR_SIZE];
 	
 	if(vbn > 0){
 		if(numTupla >= NUMTUPLAS/2){
-			read_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+			read_sector(blockSize + numMFT*2 + 1, buffer);
 		}
 		else{
-			read_sector(bootBlock.blockSize + numMFT*2, buffer);
+			read_sector(blockSize + numMFT*2, buffer);
 		}
 		
 		for (int i=0; i<4; i++) {
-			buffer[numTupla*16 + 4 + i] = (byte)(vbn/pow(256,i));
+			buffer[numTupla*16 + 4 + i] = (char)(vbn/pow(256,i));
 		}	
 
 	
 		if(numTupla >= NUMTUPLAS/2){
-			write_sector(bootBlock.blockSize + numMFT*2 + 1, buffer);
+			write_sector(blockSize + numMFT*2 + 1, buffer);
 		}
 		else{
-			write_sector(bootBlock.blockSize + numMFT*2, buffer);
+			write_sector(blockSize + numMFT*2, buffer);
 		}
 		
 		return OK;

@@ -1,13 +1,15 @@
 #include <stdio.h>
 
-#include "auxlib2.h"
-#include "apidisk.h"
+//#include "auxlib2.h"
+//#include "apidisk.h"
 #include "regMFT.h"
 #include "bitmap2.h"
-#include "t2fs.h"
+#include <string.h>
+//#include "t2fs.h"
 
 #define SIZERECORD 64
-
+#define ERRO -1
+#define OK 0
 #define ERRO_MSM_SETOR -3
 #define ERRO_MSM_BLOCO -4
 #define ERRO_MSM_TUPLA -5
@@ -17,21 +19,22 @@
 
 
 typedef struct {
-	byte data[SECTOR_SIZE];
-	int pointer=0;	 //qual dos 4 diretorios dentro do setor
-	int sectPointer = 0;
-	int blkPointer = 0;
-	RECORDMFT regM;
+	unsigned char data[SECTOR_SIZE];
+	int pointer;	 //qual dos 4 diretorios dentro do setor
+	int sectPointer;
+	int blkPointer;
+	REGMFT regM;
 }REGRECORD;
 
+int blocoSize;
 
 //carrega a primeira entrada de diretorio e seta o ponteiro para zero
 //ass:Nicolas
-void loadFirstRecord(REGRECORD *regR, REGMFT regM);
+void loadFirstRecord(REGRECORD *regR, REGMFT regM, int blockSize);
 
 //passa para a proxima entrada de diretorio se puder e retorna 0, 1 caso contrario
 //ass:Nicolas
-void nextRecord(REGRECORD *regR, REGMFT *regM);
+int nextRecord(REGRECORD *regR, REGMFT *regM);
 
 //passa para a entrada de diretorio anterior se puder e retorna 0, 1 caso contrario
 //ass:Nicolas
@@ -89,15 +92,13 @@ int setRecordName(REGRECORD *regR, char *buffer);
 
 //seta tamanho total em blocos de reg
 //ass:Gabriel
-int setBlocksFileSize(REGRECORD *regR, int size);
+void setBlocksFileSize(REGRECORD *regR, int size);
 
 //seta tamanho total em bytes de reg
 //ass:Gabriel
-int setBytesFileSize(REGRECORD *regR, int size);
+void setBytesFileSize(REGRECORD *regR, int size);
 
 //seta numero de registro MFT de reg
 //ass:Gabriel
-int setMFTNumber(REGRECORD *regR, int numMFT);
+void setMFTNumber(REGRECORD *regR, int numMFT);
 
-//ass:Gabriel
-int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo);
