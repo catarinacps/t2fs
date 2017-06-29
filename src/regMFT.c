@@ -44,7 +44,12 @@ int backTupla(REGMFT *reg){
 //retorna o tipo da tupla. gg litle-endian
 //ass:Gabriel
 int getTuplaType(REGMFT reg){
-	return (int)reg.data[SIZETUPLA*reg.pointer];
+	int i=0, exp=1, soma=0;
+	for(i=0;i<4;i++){
+		soma+=reg.data[SIZETUPLA*reg.pointer+i]*exp;
+		exp*=256;
+	}
+	return soma;
 }
 
 //retorna 1 se a tupla indica registro livre, 0 caso contrario

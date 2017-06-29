@@ -1,12 +1,13 @@
 #include "../include/auxlib2.h"
 int handleUltraMasterGenerator=1;
+int hasBegun=ERRO;
 
 //BLANK SPACE
 //ass:Henrique
 int openSpots() {
     int espacosAbertos = 0;
     for(int i = 0; i<20; i++) {
-        if (arquivosAbertos[i].estaAberto == 0) {
+        if (arquivosAbertos[i].estaAberto == ERRO) {
             espacosAbertos++;
         }
     }
@@ -145,6 +146,8 @@ int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD *
 int findFreeMFT() {
 	int numMFTreg = bootBlock.blockSize * bootBlock.MFTBlocksSize / 2;
 	REGMFT regM;
+	printf(" blockSize=%d ", bootBlock.blockSize);
+	printf(" MFTBlocksSize=%d ", bootBlock.MFTBlocksSize);
 
 	for (int i=4; i < numMFTreg; i++) {
 		loadMFT(&regM, i, bootBlock.blockSize);
@@ -295,6 +298,21 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 	
 }
 
+//ass:gabriel
 int getHandle(){
 	return handleUltraMasterGenerator++;
+}
+
+//ass:gabriel
+void initLib(){
+	int i;
+	if(hasBegun!=OK){
+		loadBootBlock();
+		hasBegun=OK;
+		for(i=0; i<20; i++){
+			arquivosAbertos[i].estaAberto=ERRO;
+		}
+		diretoriosAbertos=initLista();	
+	}
+		
 }

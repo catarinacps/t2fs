@@ -4,6 +4,17 @@
 #include <string.h>
 #include "../include/apidisk.h"
 
+char *mygets(char *buf, size_t size) {
+    if (buf != NULL && size > 0) {
+        if (fgets(buf, size, stdin)) {
+            buf[strcspn(buf, "\n")] = '\0';
+            return buf;
+        }
+        *buf = '\0';  /* clear buffer at end of file */
+    }
+    return NULL;
+}
+
 void help() {
 	
 	printf ("Testing program - read and write setores do arquivo t2fs_disk.dat\n");
@@ -21,7 +32,7 @@ int main(int argc, char *argv[])
 	help();
 	while (1) {
 		printf ("CMD> ");
-		gets(command);
+		mygets(command,128);
 		if (strlen(command)==0)
 			continue;
 		

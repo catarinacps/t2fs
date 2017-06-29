@@ -34,6 +34,7 @@ struct t2fs_bootBlock bootBlock;
 OFILE arquivosAbertos[20];
 LISTA *diretoriosAbertos;
 
+
 //int handleUltraMasterGenerator;
 
 int openSpots();
@@ -53,5 +54,8 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 
 //ass:gabriel
 int getHandle();
+
+//ass:gabriel
+void initLib();
 
 #endif //_HAS_AUXLIB2_H

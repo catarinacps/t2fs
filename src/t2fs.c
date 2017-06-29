@@ -2,6 +2,7 @@
 #include "../include/auxlib2.h"
 
 int identify2 (char *name, int size) {
+	initLib();
     return 0;
 }
 
@@ -10,11 +11,14 @@ FILE2 create2 (char *filename) {
 	REGRECORD *regR, *regAvo;
 	REGMFT regM;
 	char *token, *aux;
+	char filename2[200];
 
-	loadBootBlock();
+	strcpy(filename2,filename);//se nao da segmentation falut pq strtok n gosta de parametros
 
-    if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename, &regR, &regM, &regAvo) == MISSING_FILE) {
-        if ((freeRegNum = findFreeMFT()) != ERRO) {
+	initLib();
+
+    if (openSpots() > 0 && isValidPath(filename2) == OK && fileExists(filename2, &regR, &regM, &regAvo) == MISSING_FILE) {
+		if ((freeRegNum = findFreeMFT()) != ERRO) {
             setRegType(freeRegNum,0,0);
 			for (int i=0; i<20; i++){
 				if (arquivosAbertos[i].estaAberto == ERRO) {
@@ -24,7 +28,7 @@ FILE2 create2 (char *filename) {
 					arquivosAbertos[i].estaAberto = OK;
 					
 					//achar registro do diretorio
-					token = strtok(filename,"/");
+					token = strtok(filename2,"/");
 					do {
 						aux = token;
 						token = strtok(NULL,"/");
@@ -47,50 +51,62 @@ FILE2 create2 (char *filename) {
 }
 
 int delete2 (char *filename) {
+	initLib();
     return 0;
 }
 
 FILE2 open2 (char *filename) {
+	initLib();
     return 0;
 }
 
 int close2 (FILE2 handle) {
+	initLib();
     return 0;
 }
 
 int read2 (FILE2 handle, char *buffer, int size) {
+	initLib();
     return 0;
 }
 
 int write2 (FILE2 handle, char *buffer, int size) {
+	initLib();
     return 0;
 }
 
 int truncate2 (FILE2 handle) {
+	initLib();
     return 0;
 }
 
 int seek2 (FILE2 handle, DWORD offset) {
+	initLib();
     return 0;
 }
 
 int mkdir2 (char *pathname) {
+	initLib();
     return 0;
 }
 
 int rmdir2 (char *pathname) {
+	initLib();
     return 0;
 }
 
 DIR2 opendir2 (char *pathname) {
+	initLib();
     return 0;
 }
 
 int readdir2 (DIR2 handle, DIRENT2 *dentry) {
+	initLib();
     return 0;
 }
 
 int closedir2 (DIR2 handle) {
+	initLib();
     return 0;
 }
 
