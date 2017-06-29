@@ -126,7 +126,7 @@ int getBlocksFileSize(REGRECORD regR){
 	int exp=1;
 	for(int i=0;i<4;i++){
 		out += (int) regR.data[SIZERECORD*regR.pointer + 52 + i]*exp;
-		exp*=256;
+		exp *= 256;
 	}
 	return out;
 }
@@ -138,7 +138,7 @@ int getBytesFileSize(REGRECORD regR){
 	int exp=1;
 	for(int i=0;i<4;i++){
 		out += (int) regR.data[SIZERECORD*regR.pointer + 56 + i]*exp;
-		exp*=256;
+		exp *= 256;
 	}
 	return out;
 }
@@ -150,7 +150,7 @@ int getMFTNumber(REGRECORD regR){
 	int exp=1;
 	for(int i=0;i<4;i++){
 		out += (int) regR.data[SIZERECORD*regR.pointer + 60 + i]*exp;
-		exp*=256;
+		exp *= 256;
 	}
 	return out;
 }
@@ -183,7 +183,7 @@ void setBlocksFileSize(REGRECORD *regR, int size){
 	int exp=1;
 	for(int i=0;i<4;i++){
 		regR->data[SIZERECORD*regR->pointer + 52 + i] = (char)(size/exp); //magica logica aritmetica
-		exp*=256;
+		exp *= 256;
 	}
 }
 
@@ -193,7 +193,7 @@ void setBytesFileSize(REGRECORD *regR, int size){
 	int exp=1;
 	for(int i=0;i<4;i++){
 		regR->data[SIZERECORD*regR->pointer + 56 + i] = (char)(size/exp);
-		exp*=256;
+		exp *= 256;
 	}
 }
 
@@ -203,7 +203,7 @@ void setMFTNumber(REGRECORD *regR, int numMFT){
 	int exp=1;
 	for(int i=0;i<4;i++){
 		regR->data[SIZERECORD*regR->pointer + 60 + i] = (char)(numMFT/exp);
-		exp*=256;
+		exp *= 256;
 	}
 }
 

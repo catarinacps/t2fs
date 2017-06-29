@@ -50,14 +50,39 @@ FILE2 create2 (char *filename) {
 	}
 }
 
+// bunda:henrique
 int delete2 (char *filename) {
 	initLib();
     return 0;
 }
 
+// bunda:henrique
 FILE2 open2 (char *filename) {
+	REGRECORD *regR, *regAvo;
+	REGMFT regM;
+	char *token, *aux;
+	char filename2[200];
+
+	strcpy(filename2,filename);	//se nao da segmentation falut pq strtok n gosta de parametros
+
 	initLib();
-    return 0;
+
+    if (openSpots() > 0 && isValidPath(filename2) == OK && fileExists(filename2, &regR, &regM, &regAvo) == OK) {
+		for (int i=0; i<20; i++){
+			if (arquivosAbertos[i].estaAberto == ERRO) {
+				arquivosAbertos[i].handle = getHandle();
+				printf("mft regr %d mft regm %d \n", regR->regM.numMFT, regM.numMFT);
+				arquivosAbertos[i].numMFT = getMFTNumber(*regR);
+				arquivosAbertos[i].currentPointer = 0;
+				arquivosAbertos[i].estaAberto = OK;
+
+				return arquivosAbertos[i].handle;
+			}
+		}
+		return ERRO; //nunca chegará aki
+    } else {
+		return ERRO;
+	}
 }
 
 int close2 (FILE2 handle) {
