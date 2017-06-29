@@ -1,4 +1,5 @@
 #include "../include/auxlib2.h"
+int handleUltraMasterGenerator=1;
 
 //BLANK SPACE
 //ass:Henrique
@@ -286,4 +287,8 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 	
 	return OK;
 	
+}
+
+int getHandle(){
+	return handleUltraMasterGenerator++;
 }

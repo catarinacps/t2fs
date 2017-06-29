@@ -85,8 +85,10 @@ int isTuplaJmp(REGMFT reg){
 //ass:Gabriel
 int getVBN(REGMFT reg){
 	int out=0;
+	int exp=1;
 	for (int i=0; i<4; i++) {
-		out += (int) reg.data[SIZETUPLA*reg.pointer + 4 + i]*pow(256,i);
+		out += (int) reg.data[SIZETUPLA*reg.pointer + 4 + i]*exp;
+		exp*=256;
 	}
 	return out;
 }
@@ -95,8 +97,10 @@ int getVBN(REGMFT reg){
 //ass:Gabriel
 int getLBN(REGMFT reg){
 	int out=0;
+	int exp=1;
 	for (int i=0; i<4; i++) {
-		out += (int) reg.data[SIZETUPLA*reg.pointer + 8 + i]*pow(256,i);
+		out += (int) reg.data[SIZETUPLA*reg.pointer + 8 + i]*exp;
+		exp*=256;
 	}
 	return out;
 }
@@ -105,9 +109,10 @@ int getLBN(REGMFT reg){
 //ass:Gabriel
 int getCont(REGMFT reg){
 	int out=0;
-
+	int exp=1;
 	for (int i=0; i<4; i++) {
-		out += (int) reg.data[SIZETUPLA*reg.pointer + 12 + i]*pow(256,i);
+		out += (int) reg.data[SIZETUPLA*reg.pointer + 12 + i]*exp;
+		exp*=256;
 	}
 	return out;
 }
@@ -159,6 +164,7 @@ int setRegType(int numMFT, int type, int numTupla) {
 //ass:Nicolas
 int setRegCont(int numMFT , int cont, int numTupla){
 	unsigned char buffer[SECTOR_SIZE];
+	int exp=1;
 	
 	if(cont > 0){
 		if(numTupla >= NUMTUPLAS/2){
@@ -169,7 +175,8 @@ int setRegCont(int numMFT , int cont, int numTupla){
 		}
 		
 		for (int i=0; i<4; i++) {
-			buffer[numTupla*16 + 12 + i] = (char)(cont/pow(256,i));
+			buffer[numTupla*16 + 12 + i] = (char)(cont/exp);
+			exp*=256;
 		}	
 
 	
@@ -190,6 +197,7 @@ int setRegCont(int numMFT , int cont, int numTupla){
 
 int setLBN(int numMFT, int lbn, int numTupla){
 	unsigned char buffer[SECTOR_SIZE];
+	int exp=1;
 	
 	if(lbn > 0){
 		if(numTupla >= NUMTUPLAS/2){
@@ -200,7 +208,8 @@ int setLBN(int numMFT, int lbn, int numTupla){
 		}
 		
 		for (int i=0; i<4; i++) {
-			buffer[numTupla*16 + 8 + i] = (char)(lbn/pow(256,i));
+			buffer[numTupla*16 + 8 + i] = (char)(lbn/exp);
+			exp*=256;
 		}	
 
 	
@@ -220,6 +229,7 @@ int setLBN(int numMFT, int lbn, int numTupla){
 
 int setVBN(int numMFT, int vbn, int numTupla){
 	unsigned char buffer[SECTOR_SIZE];
+	int exp=1;
 	
 	if(vbn > 0){
 		if(numTupla >= NUMTUPLAS/2){
@@ -230,7 +240,8 @@ int setVBN(int numMFT, int vbn, int numTupla){
 		}
 		
 		for (int i=0; i<4; i++) {
-			buffer[numTupla*16 + 4 + i] = (char)(vbn/pow(256,i));
+			buffer[numTupla*16 + 4 + i] = (char)(vbn/exp);
+			exp*=256;
 		}	
 
 	

@@ -16,7 +16,7 @@ FILE2 create2 (char *filename) {
             setRegType(freeRegNum,0,0);
 			for (int i=0; i<20; i++){
 				if (arquivosAbertos[i].estaAberto == ERRO) {
-					arquivosAbertos[i].handle = handleUltraMasterGenerator++;
+					arquivosAbertos[i].handle = getHandle();
 					arquivosAbertos[i].numMFT = freeRegNum;
 					arquivosAbertos[i].currentPointer = 0;
 					arquivosAbertos[i].estaAberto = OK;

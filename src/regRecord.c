@@ -123,8 +123,10 @@ int getRecordName(REGRECORD regR, char *buffer){
 //ass:Nicolas
 int getBlocksFileSize(REGRECORD regR){
 	int out=0;
+	int exp=1;
 	for(int i=0;i<4;i++){
-		out += (int) regR.data[SIZERECORD*regR.pointer + 52 + i]*pow(256,i);
+		out += (int) regR.data[SIZERECORD*regR.pointer + 52 + i]*exp;
+		exp*=256;
 	}
 	return out;
 }
@@ -133,8 +135,10 @@ int getBlocksFileSize(REGRECORD regR){
 //ass:Nicolas
 int getBytesFileSize(REGRECORD regR){
 	int out=0;
+	int exp=1;
 	for(int i=0;i<4;i++){
-		out += (int) regR.data[SIZERECORD*regR.pointer + 56 + i]*pow(256,i);
+		out += (int) regR.data[SIZERECORD*regR.pointer + 56 + i]*exp;
+		exp*=256;
 	}
 	return out;
 }
@@ -143,8 +147,10 @@ int getBytesFileSize(REGRECORD regR){
 //ass:Nicolas
 int getMFTNumber(REGRECORD regR){
 	int out=0;
+	int exp=1;
 	for(int i=0;i<4;i++){
-		out += (int) regR.data[SIZERECORD*regR.pointer + 60 + i]*pow(256,i);
+		out += (int) regR.data[SIZERECORD*regR.pointer + 60 + i]*exp;
+		exp*=256;
 	}
 	return out;
 }
@@ -174,24 +180,30 @@ int setRecordName(REGRECORD *regR, char *buffer){
 //seta tamanho total em blocos de reg
 //ass:Gabriel
 void setBlocksFileSize(REGRECORD *regR, int size){
+	int exp=1;
 	for(int i=0;i<4;i++){
-		regR->data[SIZERECORD*regR->pointer + 52 + i] = (char)(size/pow(256,i)); //magica logica aritmetica
+		regR->data[SIZERECORD*regR->pointer + 52 + i] = (char)(size/exp); //magica logica aritmetica
+		exp*=256;
 	}
 }
 
 //seta tamanho total em bytes de reg
 //ass:Gabriel
 void setBytesFileSize(REGRECORD *regR, int size){
+	int exp=1;
 	for(int i=0;i<4;i++){
-		regR->data[SIZERECORD*regR->pointer + 56 + i] = (char)(size/pow(256,i));
+		regR->data[SIZERECORD*regR->pointer + 56 + i] = (char)(size/exp);
+		exp*=256;
 	}
 }
 
 //seta numero de registro MFT de reg
 //ass:Gabriel
 void setMFTNumber(REGRECORD *regR, int numMFT){
+	int exp=1;
 	for(int i=0;i<4;i++){
-		regR->data[SIZERECORD*regR->pointer + 60 + i] = (char)(numMFT/pow(256,i));
+		regR->data[SIZERECORD*regR->pointer + 60 + i] = (char)(numMFT/exp);
+		exp*=256;
 	}
 }
 

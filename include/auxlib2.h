@@ -1,3 +1,6 @@
+#ifndef _HAS_AUXLIB2_H
+#define _HAS_AUXLIB2_H
+
 #include <stdio.h>
 //#include <string.h>
 
@@ -31,7 +34,7 @@ struct t2fs_bootBlock bootBlock;
 OFILE arquivosAbertos[20];
 LISTA *diretoriosAbertos;
 
-int handleUltraMasterGenerator = 1;
+//int handleUltraMasterGenerator;
 
 int openSpots();
 
@@ -47,3 +50,8 @@ int loadBootBlock();
 
 //ass:Gabriel
 int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo);
+
+//ass:gabriel
+int getHandle();
+
+#endif //_HAS_AUXLIB2_H
