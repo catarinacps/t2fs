@@ -16,13 +16,15 @@ int openSpots() {
 
 //ass:Henrique
 int isValidPath(char caminho[]) {
-    char *token;
+    char *token, caminho2[200];
 	
+	strcpy(caminho2, caminho);
+
 	if (caminho[0] != '/') {
 		return ERRO;
 	}
 	
-    token = strtok(caminho, "/");
+    token = strtok(caminho2, "/");
 
     while (token != NULL) {
         if (strspn(token, CARACTERES_VALIDOS) != strlen(token)) {
@@ -39,12 +41,14 @@ int isValidPath(char caminho[]) {
 int isRealPath(char caminho[]) {
 	REGMFT regM;
 	REGRECORD regR;
-	char buffer[51], *token, *tokenAux;
+	char buffer[51], caminho2[200], *token, *tokenAux;
+
+	strcpy(caminho2, caminho);
 
 	loadMFT(&regM, 1, bootBlock.blockSize);
 	loadFirstRecord(&regR, regM, bootBlock.blockSize);
 
-	token = strtok(caminho, "/");
+	token = strtok(caminho2, "/");
 	tokenAux = token;
 
 	if (token == NULL) {
@@ -74,14 +78,16 @@ int isRealPath(char caminho[]) {
 int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD **regRout2) {
 	REGMFT regM;
 	REGRECORD *regR, *regR2;
-	char buffer[51], *token, *tokenAux;
+	char buffer[51], caminho2[200], *token, *tokenAux;
 	regR=malloc(sizeof(REGRECORD));
 	regR2=NULL;
+
+	strcpy(caminho2, caminho);
 
 	loadMFT(&regM, 1, bootBlock.blockSize);
 	loadFirstRecord(regR, regM, bootBlock.blockSize);
 
-	token = strtok(caminho, "/");
+	token = strtok(caminho2, "/");
 	tokenAux = token;
 
 	if (token == NULL) {	//caminho invalido (root)

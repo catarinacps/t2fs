@@ -11,6 +11,8 @@ FILE2 create2 (char *filename) {
 	REGMFT regM;
 	char *token, *aux;
 
+	loadBootBlock();
+
     if (openSpots() > 0 && isValidPath(filename) == OK && fileExists(filename, &regR, &regM, &regAvo) == MISSING_FILE) {
         if ((freeRegNum = findFreeMFT()) != ERRO) {
             setRegType(freeRegNum,0,0);
