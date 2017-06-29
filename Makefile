@@ -51,5 +51,5 @@ clean:
 	rm -f $(OBJ) $(INC_DIR)/*~ $(LIB_DIR)/*.a *~
 
 redo:
-	$(clean);	\
+	$(clean)	\
 	$(all)
