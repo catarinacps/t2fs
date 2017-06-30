@@ -94,6 +94,7 @@ int delete2 (char *filename) {
 		setRegType(getMFTNumber(*regR), -1, 0);
 
 		setRecordType(regR, 0);
+		write_sector(bootBlock.blockSize * regR->blkPointer + regR->sectPointer, regR->data);
 
 		// agora veremos se e necessario cortar blocos do diretorio apos deletar o record
 		// XP INCOMING >>>>> :fire: :fire: :top: :ok_hand:
