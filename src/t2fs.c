@@ -26,6 +26,7 @@ FILE2 create2 (char *filename) {
 					arquivosAbertos[i].numMFT = freeRegNum;
 					arquivosAbertos[i].currentPointer = 0;
 					arquivosAbertos[i].estaAberto = OK;
+					strcpy(arquivosAbertos[i].path,filename2);
 					
 					//achar registro do diretorio
 					token = strtok(filename2,"/");
@@ -173,10 +174,10 @@ FILE2 open2 (char *filename) {
 		for (int i=0; i<20; i++){
 			if (arquivosAbertos[i].estaAberto == ERRO) {
 				arquivosAbertos[i].handle = getHandle();
-				printf("mft regr %d mft regm %d \n", regR->regM.numMFT, regM.numMFT);
 				arquivosAbertos[i].numMFT = getMFTNumber(*regR);
 				arquivosAbertos[i].currentPointer = 0;
 				arquivosAbertos[i].estaAberto = OK;
+				strcpy(arquivosAbertos[i].path,filename2);
 
 				return arquivosAbertos[i].handle;
 			}
@@ -206,47 +207,141 @@ int close2 (FILE2 handle) {
 }
 
 int read2 (FILE2 handle, char *buffer, int size) {
+	REGMFT regM, regMfile;
+	REGRECORD *regR, *regAvo;
+	int VBNatual, achou=ERRO, VBNfinal, corteInicio, bytesLidos;
+	char *nossoBuffer;
+
+
 	initLib();
-    return 0;
+	if(size==0)
+		return 0;
+	if(size<0)
+		return ERRO;
+	
+	for (int i=0; i<20; i++) {
+		if (arquivosAbertos[i].handle == handle) {
+
+			fileExists(arquivosAbertos[i].path, &regR, &regM, &regAvo);
+			loadMFT(&regMfile, getMFTNumber(*regR), bootBlock.blockSize);
+			
+			if(size + arquivosAbertos[i].currentPointer < getBytesFileSize(*regR)){
+				VBNatual=arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SIZE_SECTOR);
+				while (achou == ERRO) {
+					if (isTuplaJmp(regMfile) == OK) {
+						loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+					} else {
+						if(VBNatual >= getVBN(regMfile) && VBNatual < getVBN(regMfile) + getContinuosBlocks(regMfile)){
+							achou=OK;
+						}else{
+							nextTupla(&regMfile);
+						}
+					}
+				}
+				VBNfinal=(arquivosAbertos[i].currentPointer + size) / (bootBlock.blockSize * SIZE_SECTOR);
+				nossoBuffer=malloc(VBNfinal - VBNatual +1);
+
+				corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
+
+				for(int j=VBNatual; j<=VBNfinal; j++){
+					readBloco(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize);
+				}
+
+				arquivosAbertos[i].currentPointer += size;
+
+				strncpy(buffer, nossoBuffer + corteInicio, size);
+
+				return size;
+			} else {
+				VBNatual=arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SIZE_SECTOR);
+				while (achou == ERRO) {
+					if (isTuplaJmp(regMfile) == OK) {
+						loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+					} else {
+						if(VBNatual >= getVBN(regMfile) && VBNatual < getVBN(regMfile) + getContinuosBlocks(regMfile)){
+							achou=OK;
+						}else{
+							nextTupla(&regMfile);
+						}
+					}
+				}
+				VBNfinal=(getBytesFileSize(*regR)) / (bootBlock.blockSize * SIZE_SECTOR);
+				nossoBuffer=malloc(VBNfinal - VBNatual +1);
+
+				corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
+
+				for(int j=VBNatual; j<=VBNfinal; j++){
+					readBloco(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize);
+				}
+				bytesLidos=getBytesFileSize(*regR) - arquivosAbertos[i].currentPointer;
+				arquivosAbertos[i].currentPointer = getBlocksFileSize(*regR);
+
+				strncpy(buffer, nossoBuffer + corteInicio, bytesLidos);
+
+				return bytesLidos;
+			}
+		}
+	}
+	return ERRO;
+
 }
 
 int write2 (FILE2 handle, char *buffer, int size) {
 	initLib();
-    return 0;
+    return ERRO;
 }
 
 int truncate2 (FILE2 handle) {
 	initLib();
-    return 0;
+    return ERRO;
 }
 
+//ass:gabriel
 int seek2 (FILE2 handle, DWORD offset) {
+	REGMFT regM;
+	REGRECORD *regR, *regAvo;
+
 	initLib();
-    return 0;
+	for (int i=0; i<20; i++) {
+		if (arquivosAbertos[i].handle == handle) {
+			fileExists(arquivosAbertos[i].path, &regR, &regM, &regAvo);
+			if(offset > getBytesFileSize(*regR)){
+				return ERRO;
+			}
+			else if(offset == -1){
+				arquivosAbertos[i].currentPointer = getBytesFileSize(*regR);
+			}else{
+				arquivosAbertos[i].currentPointer = offset;
+			}
+
+			return OK;
+		}
+	}
+    return ERRO;
 }
 
 int mkdir2 (char *pathname) {
 	initLib();
-    return 0;
+    return ERRO;
 }
 
 int rmdir2 (char *pathname) {
 	initLib();
-    return 0;
+    return ERRO;
 }
 
 DIR2 opendir2 (char *pathname) {
 	initLib();
-    return 0;
+    return ERRO;
 }
 
 int readdir2 (DIR2 handle, DIRENT2 *dentry) {
 	initLib();
-    return 0;
+    return ERRO;
 }
 
 int closedir2 (DIR2 handle) {
 	initLib();
-    return 0;
+    return ERRO;
 }
 

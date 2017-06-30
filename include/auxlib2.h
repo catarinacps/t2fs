@@ -25,6 +25,7 @@ typedef struct {
 typedef struct {
     FILE2 handle;
     int numMFT;
+    char path[200];
     int currentPointer; //pode ficar maior ( ͡° ͜ʖ ͡°)²
     int estaAberto;
 } OFILE;
@@ -57,5 +58,8 @@ int getHandle();
 
 //ass:gabriel
 void initLib();
+
+//ass:gabriel
+int readBloco(REGMFT regM, int VBN, char *buffer);
 
 #endif //_HAS_AUXLIB2_H
