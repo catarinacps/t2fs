@@ -112,7 +112,7 @@ int getLBN(REGMFT reg){
 
 //retorna numero de blocos continuos de reg
 //ass:Gabriel
-int getCont(REGMFT reg){
+int getContinuosBlocks(REGMFT reg){
 	int out=0;
 	int exp=1;
 	for (int i=0; i<4; i++) {

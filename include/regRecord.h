@@ -1,10 +1,10 @@
 #include <stdio.h>
+#include <string.h>
 
 //#include "auxlib2.h"
 //#include "apidisk.h"
 #include "regMFT.h"
 #include "bitmap2.h"
-#include <string.h>
 //#include "t2fs.h"
 
 #define SIZERECORD 64

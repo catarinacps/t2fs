@@ -51,8 +51,105 @@ FILE2 create2 (char *filename) {
 }
 
 // bunda:henrique
+// departamento de engenharia eletrica e uma bosta
+// s2 brum asdasdawdasdawdasdawd
 int delete2 (char *filename) {
+	REGRECORD *regR, *regAvo;
+	REGMFT regM, regMfile, regMemes;
+	char filename2[200];
+	int diretoriosBloco = 0, tuplaCounter = 0, lastMFTbeforeJump;
+
+	unsigned char buffer[SECTOR_SIZE];
+
+	strcpy(filename2,filename);	//se nao da segmentation falut pq strtok n gosta de parametros
+
 	initLib();
+
+	if (isValidPath(filename2) == OK && fileExists(filename2, &regR, &regM, &regAvo) == OK) {
+		for (int i=0; i<20; i++) {
+			if (arquivosAbertos[i].numMFT == getMFTNumber(*regR)) {
+				close2(arquivosAbertos[i].handle);
+			}
+		}
+
+		if (regAvo != NULL) {
+			setBytesFileSize(regAvo, getBytesFileSize(*regAvo) - SIZERECORD);
+			write_sector(regAvo->blkPointer * bootBlock.blockSize + regAvo->sectPointer, regAvo->data);
+		}
+
+		loadMFT(&regMfile, getMFTNumber(*regR), bootBlock.blockSize);
+
+		while (isTuplaEnd(regMfile) == ERRO) {
+			if (isTuplaJmp(regMfile) == OK) {
+				setRegType(getMFTNumber(*regR), -1, 0);
+				loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+			} else {
+				setRegType(getMFTNumber(*regR), -1, 0);
+				for (int i=0; i<getContinuosBlocks(regMfile); i++) {
+					setBitmap2(getLBN(regMfile) + i, 0);
+				}
+				nextTupla(&regMfile);
+			}
+		}
+		setRegType(getMFTNumber(*regR), -1, 0);
+
+		setRecordType(regR, 0);
+
+		// agora veremos se e necessario cortar blocos do diretorio apos deletar o record
+		// XP INCOMING >>>>> :fire: :fire: :top: :ok_hand:
+
+		for (regR->sectPointer=0; regR->sectPointer<bootBlock.blockSize; regR->sectPointer++) {
+			read_sector(bootBlock.blockSize * regR->blkPointer + regR->sectPointer , regR->data);
+			for (regR->pointer=0; regR->pointer<4; regR->pointer++) {
+				if (isRecordFree(*regR) != OK) {
+					diretoriosBloco++;
+				}
+			}
+		}
+
+		if (diretoriosBloco == 0) {
+			regMemes = regR->regM;
+			lastMFTbeforeJump = regMemes.numMFT;
+
+			while (isTuplaEnd(regMemes) == ERRO) {
+				if (isTuplaJmp(regMemes) == OK) {
+					tuplaCounter = 0;
+					lastMFTbeforeJump = regMemes.numMFT;
+					loadMFT(&regMemes, getVBN(regMemes), bootBlock.blockSize);
+				} else {
+					tuplaCounter++;
+					nextTupla(&regMemes);
+				}
+			}
+			tuplaCounter--;
+			backTupla(&regMemes);
+
+			for (int i=0; i<bootBlock.blockSize; i++) {
+				read_sector(bootBlock.blockSize * (getLBN(regMemes) + getContinuosBlocks(regMemes) - 1) + i, buffer);
+				write_sector(bootBlock.blockSize * regR->blkPointer + i, buffer);
+			}
+
+			if (getContinuosBlocks(regMemes) > 1) {
+				setRegCont(regMemes.numMFT, getContinuosBlocks(regMemes) - 1, tuplaCounter);
+				setBitmap2(getContinuosBlocks(regMemes) + getLBN(regMemes), 0);
+			} else {
+				setBitmap2(getLBN(regMemes), 0);
+				if (tuplaCounter > 0) {
+					setRegType(regMemes.numMFT, 0, tuplaCounter);
+					setRegType(regMemes.numMFT, -1, tuplaCounter + 1);
+				} else {
+					setRegType(regMemes.numMFT, -1, tuplaCounter);
+					setRegType(regMemes.numMFT, -1, tuplaCounter + 1);
+					setRegType(lastMFTbeforeJump, 0, 31);	// niemiec acha que nao
+				}
+			}
+		}
+
+		return OK;
+    } else {
+		return ERRO;
+	}
+	
     return 0;
 }
 
@@ -60,7 +157,6 @@ int delete2 (char *filename) {
 FILE2 open2 (char *filename) {
 	REGRECORD *regR, *regAvo;
 	REGMFT regM;
-	char *token, *aux;
 	char filename2[200];
 
 	strcpy(filename2,filename);	//se nao da segmentation falut pq strtok n gosta de parametros
@@ -68,6 +164,11 @@ FILE2 open2 (char *filename) {
 	initLib();
 
     if (openSpots() > 0 && isValidPath(filename2) == OK && fileExists(filename2, &regR, &regM, &regAvo) == OK) {
+		for (int i=0; i<20; i++) {
+			if (arquivosAbertos[i].numMFT == getMFTNumber(*regR)) {
+				return ERRO;
+			}
+		}
 		for (int i=0; i<20; i++){
 			if (arquivosAbertos[i].estaAberto == ERRO) {
 				arquivosAbertos[i].handle = getHandle();
@@ -85,9 +186,22 @@ FILE2 open2 (char *filename) {
 	}
 }
 
+// bunda: henrique
 int close2 (FILE2 handle) {
 	initLib();
-    return 0;
+
+	for (int i=0; i<20; i++) {
+		if (arquivosAbertos[i].handle == handle) {
+			arquivosAbertos[i].currentPointer = 0;
+			arquivosAbertos[i].estaAberto = ERRO;
+			arquivosAbertos[i].handle = 0;
+			arquivosAbertos[i].numMFT = 0;
+
+			return OK;
+		}
+	}
+
+	return ERRO;	// existem casos em que chega aqui
 }
 
 int read2 (FILE2 handle, char *buffer, int size) {

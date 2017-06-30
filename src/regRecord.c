@@ -28,7 +28,7 @@ int nextRecord(REGRECORD *regR, REGMFT *regM){
 			return OK;
 		}
 		else {
-			if (regR->blkPointer - getLBN(*regM) < getCont(*regM) - 1) {		// temos que pegar o proximo bloco, neste caso ele é contiguo na memoria (está na mesma tupla)
+			if (regR->blkPointer - getLBN(*regM) < getContinuosBlocks(*regM) - 1) {		// temos que pegar o proximo bloco, neste caso ele é contiguo na memoria (está na mesma tupla)
 				regR->blkPointer++;
 				regR->pointer = 0;
 				regR->sectPointer = 0;
@@ -53,14 +53,14 @@ int nextRecord(REGRECORD *regR, REGMFT *regM){
 							read_sector(blocoSize * regR->blkPointer + regR->sectPointer , regR->data);
 							return OK;
 						} else {
-							return ERRO; //sera q cai aki? acho q nao
+							return ERRO; //sera q cai aqui? acho q nao
 						}
 					} else {
 						backTupla(regM);
-						return ERRO_EOF;	//aki acaba a tupla
+						return ERRO_EOF;	//aqui acaba a tupla
 					}
 				} else {
-					return ERRO;	//nunca vai chegar aki ;-)
+					return ERRO;	//nunca vai chegar aqui ;-)
 				}
 			}
 		}	

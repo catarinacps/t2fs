@@ -200,26 +200,26 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 		if (nextRecord(&regR2, &regM2) == ERRO_EOF) {
 			flagEOF = 1;
 
-			if (getBitmap2(getLBN(regM2) + getCont(regM2)) == 0) {		// achamos um novo bloco, formatamos ele e escrevemos ele
-				setBitmap2(getLBN(regM2) + getCont(regM2), 1);
-				setRegCont(regM2.numMFT, getCont(regM2) + 1, regM2.pointer);	// a partir daqui, regM2 esta desatualizado pra kct mlk
+			if (getBitmap2(getLBN(regM2) + getContinuosBlocks(regM2)) == 0) {		// achamos um novo bloco, formatamos ele e escrevemos ele
+				setBitmap2(getLBN(regM2) + getContinuosBlocks(regM2), 1);
+				setRegCont(regM2.numMFT, getContinuosBlocks(regM2) + 1, regM2.pointer);	// a partir daqui, regM2 esta desatualizado pra kct mlk
 
 				for (int i=0; i < 4; i++) {
-					read_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+					read_sector((getLBN(regM2) + getContinuosBlocks(regM2)) * bootBlock.blockSize + i, buffer);
 					for (int j=0; j < 4; j++) {
 						buffer[SIZERECORD * j] = 0;
 						buffer[SIZERECORD * j + 1] = 0;
 						buffer[SIZERECORD * j + 2] = 0;
 						buffer[SIZERECORD * j + 3] = 0;
 					}
-					write_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+					write_sector((getLBN(regM2) + getContinuosBlocks(regM2)) * bootBlock.blockSize + i, buffer);
 				}
 			} else {
 				if ((numFreeBlock = searchBitmap2(0)) > 0) {
 					if (regM2.pointer < (NUMTUPLAS - 2)) {
 						setBitmap2(numFreeBlock, 1);	// agora o bloco numFreeBlock esta ocupado no bitmap
 
-						currentVBN = getVBN(regM2) + getCont(regM2);
+						currentVBN = getVBN(regM2) + getContinuosBlocks(regM2);
 						nextTupla(&regM2);
 						setRegType(regM2.numMFT, 1, regM2.pointer);
 						setVBN(regM2.numMFT, currentVBN, regM2.pointer);
@@ -231,18 +231,18 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 						backTupla(&regM2);
 
 						for (int i=0; i < 4; i++) {
-							read_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+							read_sector((getLBN(regM2) + getContinuosBlocks(regM2)) * bootBlock.blockSize + i, buffer);
 							for (int j=0; j < 4; j++) {
 								buffer[SIZERECORD * j] = 0;
 								buffer[SIZERECORD * j + 1] = 0;
 								buffer[SIZERECORD * j + 2] = 0;
 								buffer[SIZERECORD * j + 3] = 0;
 							}
-							write_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+							write_sector((getLBN(regM2) + getContinuosBlocks(regM2)) * bootBlock.blockSize + i, buffer);
 						}
 					} else {
 						if ((numFreeMFT = findFreeMFT()) > 0) {
-							currentVBN = getVBN(regM2) + getCont(regM2);
+							currentVBN = getVBN(regM2) + getContinuosBlocks(regM2);
 
 							nextTupla(&regM2);
 							setRegType(regM2.numMFT, 2, regM2.pointer);
@@ -261,14 +261,14 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 							backTupla(&regM2);
 
 							for (int i=0; i < 4; i++) {
-								read_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+								read_sector((getLBN(regM2) + getContinuosBlocks(regM2)) * bootBlock.blockSize + i, buffer);
 								for (int j=0; j < 4; j++) {
 									buffer[SIZERECORD * j] = 0;
 									buffer[SIZERECORD * j + 1] = 0;
 									buffer[SIZERECORD * j + 2] = 0;
 									buffer[SIZERECORD * j + 3] = 0;
 								}
-								write_sector((getLBN(regM2) + getCont(regM2)) * bootBlock.blockSize + i, buffer);
+								write_sector((getLBN(regM2) + getContinuosBlocks(regM2)) * bootBlock.blockSize + i, buffer);
 							}
 						}
 					}

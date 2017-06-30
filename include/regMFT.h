@@ -71,7 +71,7 @@ int getLBN(REGMFT reg);
 
 //retorna numero de blocos continuos de reg
 //ass:Gabriel
-int getCont(REGMFT reg);
+int getContinuosBlocks(REGMFT reg);
 
 //seta o tipo na copia do registro
 //ass:Henrique
