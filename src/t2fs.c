@@ -226,7 +226,7 @@ int read2 (FILE2 handle, char *buffer, int size) {
 			loadMFT(&regMfile, getMFTNumber(*regR), bootBlock.blockSize);
 			
 			if(size + arquivosAbertos[i].currentPointer < getBytesFileSize(*regR)){
-				VBNatual=arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SIZE_SECTOR);
+				VBNatual=arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SECTOR_SIZE);
 				while (achou == ERRO) {
 					if (isTuplaJmp(regMfile) == OK) {
 						loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
@@ -238,7 +238,7 @@ int read2 (FILE2 handle, char *buffer, int size) {
 						}
 					}
 				}
-				VBNfinal=(arquivosAbertos[i].currentPointer + size) / (bootBlock.blockSize * SIZE_SECTOR);
+				VBNfinal=(arquivosAbertos[i].currentPointer + size) / (bootBlock.blockSize * SECTOR_SIZE);
 				nossoBuffer=malloc(VBNfinal - VBNatual +1);
 
 				corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
@@ -253,7 +253,7 @@ int read2 (FILE2 handle, char *buffer, int size) {
 
 				return size;
 			} else {
-				VBNatual=arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SIZE_SECTOR);
+				VBNatual=arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SECTOR_SIZE);
 				while (achou == ERRO) {
 					if (isTuplaJmp(regMfile) == OK) {
 						loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
@@ -265,7 +265,7 @@ int read2 (FILE2 handle, char *buffer, int size) {
 						}
 					}
 				}
-				VBNfinal=(getBytesFileSize(*regR)) / (bootBlock.blockSize * SIZE_SECTOR);
+				VBNfinal=(getBytesFileSize(*regR)) / (bootBlock.blockSize * SECTOR_SIZE);
 				nossoBuffer=malloc(VBNfinal - VBNatual +1);
 
 				corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
