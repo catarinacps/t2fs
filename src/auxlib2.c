@@ -185,6 +185,7 @@ int loadBootBlock(){
 	}
 	return OK;
 }
+
 //ass:Gabriel
 int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo) {	//so usamos numMFT de regM
 	REGMFT regM2;
@@ -273,7 +274,7 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 						}
 					}
 				} else {
-					printf("bah deu mto ruim foi mal ae\n");
+					printf("\nbah deu mto ruim foi mal ae\n");
 					return ERRO;
 				}
 			}
@@ -318,16 +319,32 @@ void initLib(){
 }
 
 //ass:gabriel o cansado
-int readBloco(REGMFT regM, int VBN, char *buffer){
+int readBlock(REGMFT regM, int VBN, char *buffer){
 	if(VBN >= getVBN(regM) && VBN < getVBN(regM) + getContinuosBlocks(regM)){
-		read_sector(bootBlock.blockSize * getLBN(regM), (unsigned char *) buffer);
-		read_sector(bootBlock.blockSize * getLBN(regM) + 1, (unsigned char *) buffer + SECTOR_SIZE);
-		read_sector(bootBlock.blockSize * getLBN(regM) + 2, (unsigned char *) buffer + 2 * SECTOR_SIZE);
-		read_sector(bootBlock.blockSize * getLBN(regM) + 3, (unsigned char *) buffer + 3 * SECTOR_SIZE);
+		for (int i=0; i<bootBlock.blockSize; i++) {
+			read_sector(bootBlock.blockSize * getLBN(regM) + i, (unsigned char *) buffer + i * SECTOR_SIZE);
+		}
 
 		return OK;
 		
 	}else{
 		return ERRO;
 	}
+}
+
+// bunda: henrique
+int writeBlock(REGMFT regM, int VBN, char *buffer) {
+	if(VBN >= getVBN(regM) && VBN < getVBN(regM) + getContinuosBlocks(regM)){
+		for (int i=0; i<bootBlock.blockSize; i++) {
+			write_sector(bootBlock.blockSize * getLBN(regM) + i, (unsigned char *) buffer + i * SECTOR_SIZE);
+		}
+
+		return OK;
+	} else {
+		return ERRO;
+	}
+}
+
+int fuck() {
+	
 }

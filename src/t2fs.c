@@ -224,6 +224,10 @@ int read2 (FILE2 handle, char *buffer, int size) {
 
 			fileExists(arquivosAbertos[i].path, &regR, &regM, &regAvo);
 			loadMFT(&regMfile, getMFTNumber(*regR), bootBlock.blockSize);
+
+			if (arquivosAbertos[i].currentPointer >= getBytesFileSize(*regR)) {
+				return ERRO;
+			}
 			
 			if(size + arquivosAbertos[i].currentPointer < getBytesFileSize(*regR)){
 				VBNatual=arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SECTOR_SIZE);
@@ -231,7 +235,7 @@ int read2 (FILE2 handle, char *buffer, int size) {
 					if (isTuplaJmp(regMfile) == OK) {
 						loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
 					} else {
-						if(VBNatual >= getVBN(regMfile) && VBNatual < getVBN(regMfile) + getContinuosBlocks(regMfile)){
+						if(VBNatual >= getVBN(regMfile) && VBNatual < (getVBN(regMfile) + getContinuosBlocks(regMfile))){
 							achou=OK;
 						}else{
 							nextTupla(&regMfile);
@@ -239,12 +243,17 @@ int read2 (FILE2 handle, char *buffer, int size) {
 					}
 				}
 				VBNfinal=(arquivosAbertos[i].currentPointer + size) / (bootBlock.blockSize * SECTOR_SIZE);
-				nossoBuffer=malloc(VBNfinal - VBNatual +1);
+				nossoBuffer=malloc((VBNfinal - VBNatual +1) * (bootBlock.blockSize * SECTOR_SIZE));
 
 				corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
 
 				for(int j=VBNatual; j<=VBNfinal; j++){
-					readBloco(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize);
+					if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+						nextTupla(&regMfile);
+						if (isTuplaJmp(regMfile) == OK) {
+							loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+						}
+					}
 				}
 
 				arquivosAbertos[i].currentPointer += size;
@@ -252,7 +261,7 @@ int read2 (FILE2 handle, char *buffer, int size) {
 				strncpy(buffer, nossoBuffer + corteInicio, size);
 
 				return size;
-			} else {
+			} else {	// se o ponteiro saisse do arquivo
 				VBNatual=arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SECTOR_SIZE);
 				while (achou == ERRO) {
 					if (isTuplaJmp(regMfile) == OK) {
@@ -265,15 +274,20 @@ int read2 (FILE2 handle, char *buffer, int size) {
 						}
 					}
 				}
-				VBNfinal=(getBytesFileSize(*regR)) / (bootBlock.blockSize * SECTOR_SIZE);
-				nossoBuffer=malloc(VBNfinal - VBNatual +1);
+				VBNfinal = (getBytesFileSize(*regR)) / (bootBlock.blockSize * SECTOR_SIZE);
+				nossoBuffer = malloc((VBNfinal - VBNatual +1) * (bootBlock.blockSize * SECTOR_SIZE));
 
 				corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
 
 				for(int j=VBNatual; j<=VBNfinal; j++){
-					readBloco(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize);
+					if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+						nextTupla(&regMfile);
+						if (isTuplaJmp(regMfile) == OK) {
+							loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+						}
+					}
 				}
-				bytesLidos=getBytesFileSize(*regR) - arquivosAbertos[i].currentPointer;
+				bytesLidos = getBytesFileSize(*regR) - arquivosAbertos[i].currentPointer;
 				arquivosAbertos[i].currentPointer = getBlocksFileSize(*regR);
 
 				strncpy(buffer, nossoBuffer + corteInicio, bytesLidos);
@@ -287,8 +301,124 @@ int read2 (FILE2 handle, char *buffer, int size) {
 }
 
 int write2 (FILE2 handle, char *buffer, int size) {
+	REGMFT regM, regMfile, regMfileAux;
+	REGRECORD *regR, *regAvo;
+	int VBNatual, achou=ERRO, VBNfinal, corteInicio, bytesLidos, bytesToFillBlock, writtenBytes;
+	char *nossoBuffer;
+
+
 	initLib();
-    return ERRO;
+	if (size == 0) {
+		return 0;
+	}
+	if (size < 0) {
+		return ERRO;
+	}
+	
+	for (int i=0; i<20; i++) {
+		if (arquivosAbertos[i].handle == handle) {
+
+			fileExists(arquivosAbertos[i].path, &regR, &regM, &regAvo);
+			loadMFT(&regMfile, getMFTNumber(*regR), bootBlock.blockSize);
+			
+			if(size + arquivosAbertos[i].currentPointer < getBytesFileSize(*regR)){
+				VBNatual = arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SECTOR_SIZE);
+				while (achou == ERRO) {
+					if (isTuplaJmp(regMfile) == OK) {
+						loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+					} else {
+						if (VBNatual >= getVBN(regMfile) && VBNatual < getVBN(regMfile) + getContinuosBlocks(regMfile)) {
+							achou=OK;
+						} else {
+							nextTupla(&regMfile);
+						}
+					}
+				}
+
+				VBNfinal = (arquivosAbertos[i].currentPointer + size) / (bootBlock.blockSize * SECTOR_SIZE);
+				nossoBuffer = malloc((VBNfinal - VBNatual +1) * (bootBlock.blockSize * SECTOR_SIZE));
+
+				corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
+
+				regMfileAux = regMfile;
+				for(int j=VBNatual; j<=VBNfinal; j++){
+					if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+						nextTupla(&regMfile);
+						if (isTuplaJmp(regMfile) == OK) {
+							loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+						}
+					}
+				}
+
+				strncpy(nossoBuffer + corteInicio, buffer, size);
+
+				for(int j=VBNatual; j<=VBNfinal; j++){
+					if (writeBlock(regMfileAux, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+						nextTupla(&regMfileAux);
+						if (isTuplaJmp(regMfileAux) == OK) {
+							loadMFT(&regMfileAux, getVBN(regMfileAux), bootBlock.blockSize);
+						}
+					}
+				}
+
+				arquivosAbertos[i].currentPointer += size;
+
+				return size;
+			} else {
+				// >>>>>>INTENSO<<<<<<<
+				bytesToFillBlock = bootBlock.blockSize * SECTOR_SIZE - (arquivosAbertos[i].currentPointer % (bootBlock.blockSize * SECTOR_SIZE));
+
+				if (bytesToFillBlock < bootBlock.blockSize * SECTOR_SIZE) {
+					// fio da meada: isso nao vai funcionar sepa, 
+				}
+
+				VBNatual = arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SECTOR_SIZE);
+				while (achou == ERRO) {
+					if (isTuplaJmp(regMfile) == OK) {
+						loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+					} else {
+						if (VBNatual >= getVBN(regMfile) && VBNatual < getVBN(regMfile) + getContinuosBlocks(regMfile)) {
+							achou=OK;
+						} else {
+							nextTupla(&regMfile);
+						}
+					}
+				}
+
+				VBNfinal = (arquivosAbertos[i].currentPointer + size) / (bootBlock.blockSize * SECTOR_SIZE);
+				nossoBuffer = malloc((VBNfinal - VBNatual +1) * (bootBlock.blockSize * SECTOR_SIZE));
+
+				corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
+
+				regMfileAux = regMfile;
+				for(int j=VBNatual; j<=VBNfinal; j++){
+					if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+						nextTupla(&regMfile);
+						if (isTuplaJmp(regMfile) == OK) {
+							loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+						}
+					}
+				}
+
+				strncpy(nossoBuffer + corteInicio, buffer, size);
+
+				for(int j=VBNatual; j<=VBNfinal; j++){
+					if (writeBlock(regMfileAux, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+						nextTupla(&regMfileAux);
+						if (isTuplaJmp(regMfileAux) == OK) {
+							loadMFT(&regMfileAux, getVBN(regMfileAux), bootBlock.blockSize);
+						}
+					}
+				}
+
+				arquivosAbertos[i].currentPointer += size;
+
+				return size;
+			}
+		}
+	}
+	return ERRO;
+
 }
 
 int truncate2 (FILE2 handle) {
