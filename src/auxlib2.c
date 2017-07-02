@@ -203,7 +203,7 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 
 			if (getBitmap2(getLBN(regM2) + getContinuosBlocks(regM2)) == 0) {		// achamos um novo bloco, formatamos ele e escrevemos ele
 				setBitmap2(getLBN(regM2) + getContinuosBlocks(regM2), 1);
-				setRegCont(regM2.numMFT, getContinuosBlocks(regM2) + 1, regM2.pointer);	// a partir daqui, regM2 esta desatualizado pra kct mlk
+				setRegCont(regM2.numMFT, getContinuosBlocks(regM2) + 1, regM2.pointer, &regM2);	// a partir daqui, regM2 esta desatualizado pra kct mlk
 
 				for (int i=0; i < 4; i++) {
 					read_sector((getLBN(regM2) + getContinuosBlocks(regM2)) * bootBlock.blockSize + i, buffer);
@@ -222,13 +222,13 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 
 						currentVBN = getVBN(regM2) + getContinuosBlocks(regM2);
 						nextTupla(&regM2);
-						setRegType(regM2.numMFT, 1, regM2.pointer);
-						setVBN(regM2.numMFT, currentVBN, regM2.pointer);
-						setLBN(regM2.numMFT, numFreeBlock, regM2.pointer);
-						setRegCont(regM2.numMFT, 1, regM2.pointer);
+						setRegType(regM2.numMFT, 1, regM2.pointer, &regM2);
+						setVBN(regM2.numMFT, currentVBN, regM2.pointer,&regM2);
+						setLBN(regM2.numMFT, numFreeBlock, regM2.pointer,&regM2);
+						setRegCont(regM2.numMFT, 1, regM2.pointer,&regM2);
 
 						nextTupla(&regM2);
-						setRegType(regM2.numMFT, 0, regM2.pointer);
+						setRegType(regM2.numMFT, 0, regM2.pointer, &regM2);
 						backTupla(&regM2);
 
 						for (int i=0; i < 4; i++) {
@@ -246,19 +246,19 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 							currentVBN = getVBN(regM2) + getContinuosBlocks(regM2);
 
 							nextTupla(&regM2);
-							setRegType(regM2.numMFT, 2, regM2.pointer);
-							setVBN(regM2.numMFT, numFreeMFT, regM2.pointer);
+							setRegType(regM2.numMFT, 2, regM2.pointer, &regM2);
+							setVBN(regM2.numMFT, numFreeMFT, regM2.pointer,&regM2);
 							loadMFT(&regM2, numFreeMFT, bootBlock.blockSize);
 
 							setBitmap2(numFreeBlock, 1);	// agora o bloco numFreeBlock esta ocupado no bitmap
 
-							setRegType(regM2.numMFT, 1, regM2.pointer);
-							setVBN(regM2.numMFT, currentVBN, regM2.pointer);
-							setLBN(regM2.numMFT, numFreeBlock, regM2.pointer);
-							setRegCont(regM2.numMFT, 1, regM2.pointer);
+							setRegType(regM2.numMFT, 1, regM2.pointer, &regM2);
+							setVBN(regM2.numMFT, currentVBN, regM2.pointer,&regM2);
+							setLBN(regM2.numMFT, numFreeBlock, regM2.pointer,&regM2);
+							setRegCont(regM2.numMFT, 1, regM2.pointer,&regM2);
 
 							nextTupla(&regM2);
-							setRegType(regM2.numMFT, 0, regM2.pointer);
+							setRegType(regM2.numMFT, 0, regM2.pointer, &regM2);
 							backTupla(&regM2);
 
 							for (int i=0; i < 4; i++) {
@@ -343,8 +343,4 @@ int writeBlock(REGMFT regM, int VBN, char *buffer) {
 	} else {
 		return ERRO;
 	}
-}
-
-int fuck() {
-	
 }

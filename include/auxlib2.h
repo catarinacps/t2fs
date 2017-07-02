@@ -63,6 +63,6 @@ void initLib();
 int readBlock(REGMFT regM, int VBN, char *buffer);
 
 // bunda: henrique
-int writeBlock(REGMFT regM, int VBN, char *buffer)
+int writeBlock(REGMFT regM, int VBN, char *buffer);
 
 #endif //_HAS_AUXLIB2_H

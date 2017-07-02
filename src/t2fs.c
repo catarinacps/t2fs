@@ -9,7 +9,7 @@ int identify2 (char *name, int size) {
 FILE2 create2 (char *filename) {
     int freeRegNum;
 	REGRECORD *regR, *regAvo;
-	REGMFT regM;
+	REGMFT regM, regM2;
 	char *token, *aux;
 	char filename2[200];
 
@@ -19,7 +19,8 @@ FILE2 create2 (char *filename) {
 
     if (openSpots() > 0 && isValidPath(filename2) == OK && fileExists(filename2, &regR, &regM, &regAvo) == MISSING_FILE) {
 		if ((freeRegNum = findFreeMFT()) != ERRO) {
-            setRegType(freeRegNum,0,0);
+			loadMFT(&regM2, freeRegNum, bootBlock.blockSize);
+            setRegType(freeRegNum,0,0, &regM2);
 			for (int i=0; i<20; i++){
 				if (arquivosAbertos[i].estaAberto == ERRO) {
 					arquivosAbertos[i].handle = getHandle();
@@ -56,7 +57,7 @@ FILE2 create2 (char *filename) {
 // s2 brum asdasdawdasdawdasdawd
 int delete2 (char *filename) {
 	REGRECORD *regR, *regAvo;
-	REGMFT regM, regMfile, regMemes;
+	REGMFT regM, regMfile, regMemes, regM2;
 	char filename2[200];
 	int diretoriosBloco = 0, tuplaCounter = 0, lastMFTbeforeJump;
 
@@ -82,17 +83,20 @@ int delete2 (char *filename) {
 
 		while (isTuplaEnd(regMfile) == ERRO) {
 			if (isTuplaJmp(regMfile) == OK) {
-				setRegType(getMFTNumber(*regR), -1, 0);
+				loadMFT(&regM2,getMFTNumber(*regR),bootBlock.blockSize);
+				setRegType(getMFTNumber(*regR), -1, 0, &regM2);
 				loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
 			} else {
-				setRegType(getMFTNumber(*regR), -1, 0);
+				loadMFT(&regM2,getMFTNumber(*regR),bootBlock.blockSize);
+				setRegType(getMFTNumber(*regR), -1, 0, &regM2);
 				for (int i=0; i<getContinuosBlocks(regMfile); i++) {
 					setBitmap2(getLBN(regMfile) + i, 0);
 				}
 				nextTupla(&regMfile);
 			}
 		}
-		setRegType(getMFTNumber(*regR), -1, 0);
+		loadMFT(&regM2,getMFTNumber(*regR),bootBlock.blockSize);
+		setRegType(getMFTNumber(*regR), -1, 0, &regM2);
 
 		setRecordType(regR, 0);
 		write_sector(bootBlock.blockSize * regR->blkPointer + regR->sectPointer, regR->data);
@@ -132,17 +136,18 @@ int delete2 (char *filename) {
 			}
 
 			if (getContinuosBlocks(regMemes) > 1) {
-				setRegCont(regMemes.numMFT, getContinuosBlocks(regMemes) - 1, tuplaCounter);
+				setRegCont(regMemes.numMFT, getContinuosBlocks(regMemes) - 1, tuplaCounter,&regMemes);
 				setBitmap2(getContinuosBlocks(regMemes) + getLBN(regMemes), 0);
 			} else {
 				setBitmap2(getLBN(regMemes), 0);
 				if (tuplaCounter > 0) {
-					setRegType(regMemes.numMFT, 0, tuplaCounter);
-					setRegType(regMemes.numMFT, -1, tuplaCounter + 1);
+					setRegType(regMemes.numMFT, 0, tuplaCounter, &regMemes);
+					setRegType(regMemes.numMFT, -1, tuplaCounter + 1, &regMemes);
 				} else {
-					setRegType(regMemes.numMFT, -1, tuplaCounter);
-					setRegType(regMemes.numMFT, -1, tuplaCounter + 1);
-					setRegType(lastMFTbeforeJump, 0, 31);	// niemiec acha que nao
+					setRegType(regMemes.numMFT, -1, tuplaCounter, &regMemes);
+					setRegType(regMemes.numMFT, -1, tuplaCounter + 1, &regMemes);
+					loadMFT(&regM2,lastMFTbeforeJump,bootBlock.blockSize);
+					setRegType(lastMFTbeforeJump, 0, 31, &regM2);	// niemiec acha que nao
 				}
 			}
 		}
@@ -304,7 +309,7 @@ int read2 (FILE2 handle, char *buffer, int size) {
 int write2 (FILE2 handle, char *buffer, int size) {
 	REGMFT regM, regMfile, regMfileAux;
 	REGRECORD *regR, *regAvo;
-	int VBNatual, achou=ERRO, VBNfinal, VBNeof, corteInicio, bytesToFillBlock, newBlocks, freeBlock, freeMFT;
+	int VBNatual, achou=ERRO, VBNfinal, VBNeof, corteInicio, newBlocks, freeBlock, freeMFT;
 	char *nossoBuffer;
 
 
@@ -329,11 +334,28 @@ int write2 (FILE2 handle, char *buffer, int size) {
 			
 			nossoBuffer = malloc((VBNfinal - VBNatual +1) * (bootBlock.blockSize * SECTOR_SIZE));
 			corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
-			
+
+			if(getBytesFileSize(*regR) == 0){
+				setRegType(regMfile.numMFT, 1, regMfile.pointer,&regMfile);
+				setRegType(regMfile.numMFT, 0, regMfile.pointer + 1,&regMfile);
+				setVBN(regMfile.numMFT, 0, regMfile.pointer,&regMfile);
+				if((freeBlock = searchBitmap2(0)) > 0){
+					setBitmap2(freeBlock, 1);
+					setLBN(regMfile.numMFT, freeBlock, regMfile.pointer,&regMfile);
+				}
+				else{
+					printf("CABOU O DISCO <3");
+					return ERRO;
+				}
+				setRegCont(regMfile.numMFT, 1, regMfile.pointer,&regMfile);
+				//printf("\ngetVBN:%d VBNatual:%d getCont:%d BFS:%d ", getVBN(regMfile), VBNatual, getContinuosBlocks(regMfile), getBytesFileSize(*regR));
+				//return ERRO;
+			}
 			while (achou == ERRO) {
 				if (isTuplaJmp(regMfile) == OK) {
 					loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
 				} else {
+					printf("\ngetVBN:%d VBNatual:%d getCont:%d BFS:%d ", getVBN(regMfile), VBNatual, getContinuosBlocks(regMfile), getBytesFileSize(*regR));
 					if(VBNatual >= getVBN(regMfile) && VBNatual < getVBN(regMfile) + getContinuosBlocks(regMfile)){
 						achou=OK;
 					}else{
@@ -374,9 +396,7 @@ int write2 (FILE2 handle, char *buffer, int size) {
 				
 				return size;
 				
-			}
-			
-			else{
+			}else{
 				newBlocks = VBNfinal - VBNeof;
 				
 				while (isTuplaEnd(regMfileAux) == ERRO) {
@@ -387,26 +407,26 @@ int write2 (FILE2 handle, char *buffer, int size) {
 					}
 				}
 				backTupla(&regMfileAux);  // encontrou a ultima tupla usada do registro
-				for(int i = 0; i < newBlocks; i++){
+				for(int j = 0; j < newBlocks; j++){
 					if(getBitmap2(getLBN(regMfileAux) + getContinuosBlocks(regMfileAux)) == 0){
 						setBitmap2(getLBN(regMfileAux) + getContinuosBlocks(regMfileAux), 1);
-						setRegCont(regMfileAux.numMFT, getContinuosBlocks(regMfileAux) + 1, regMfileAux.pointer);
+						setRegCont(regMfileAux.numMFT, getContinuosBlocks(regMfileAux) + 1, regMfileAux.pointer,&regMfileAux);
 					}
 					else{
 						nextTupla(&regMfileAux);
 						if(regMfileAux.pointer < NUMTUPLAS - 1){
-							setRegType(regMfileAux.numMFT, 1, regMfileAux.pointer);
-							setRegType(regMfileAux.numMFT, 0, regMfileAux.pointer + 1);
-							setVBN(regMfileAux.numMFT, VBNeof + 1 + i, regMfileAux.pointer);
+							setRegType(regMfileAux.numMFT, 1, regMfileAux.pointer,&regMfileAux);
+							setRegType(regMfileAux.numMFT, 0, regMfileAux.pointer + 1,&regMfileAux);
+							setVBN(regMfileAux.numMFT, VBNeof + 1 + j, regMfileAux.pointer,&regMfileAux);
 							if((freeBlock = searchBitmap2(0)) > 0){
 								setBitmap2(freeBlock, 1);
-								setLBN(regMfileAux.numMFT, freeBlock, regMfileAux.pointer);
+								setLBN(regMfileAux.numMFT, freeBlock, regMfileAux.pointer,&regMfileAux);
 							}
 							else{
 								printf("CABOU O DISCO <3");
 								return ERRO;
 							}
-							setRegCont(regMfileAux.numMFT, 1, regMfileAux.pointer);
+							setRegCont(regMfileAux.numMFT, 1, regMfileAux.pointer,&regMfileAux);
 						
 						}
 						else{  // jump time
@@ -414,22 +434,22 @@ int write2 (FILE2 handle, char *buffer, int size) {
 								return ERRO;
 							}
 							else{
-								setRegType(regMfileAux.numMFT, 2, regMfileAux.pointer + 1);
-								setVBN(regMfileAux.numMFT, freeMFT, regMfileAux.pointer + 1);
+								setRegType(regMfileAux.numMFT, 2, regMfileAux.pointer + 1,&regMfileAux);
+								setVBN(regMfileAux.numMFT, freeMFT, regMfileAux.pointer + 1,&regMfileAux);
 								loadMFT(&regMfileAux, freeMFT, bootBlock.blockSize);
 								
-								setRegType(regMfileAux.numMFT, 1, regMfileAux.pointer);
-								setRegType(regMfileAux.numMFT, 0, regMfileAux.pointer + 1);
-								setVBN(regMfileAux.numMFT, VBNeof + 1 + i, regMfileAux.pointer);
+								setRegType(regMfileAux.numMFT, 1, regMfileAux.pointer,&regMfileAux);
+								setRegType(regMfileAux.numMFT, 0, regMfileAux.pointer + 1,&regMfileAux);
+								setVBN(regMfileAux.numMFT, VBNeof + 1 + j, regMfileAux.pointer,&regMfileAux);
 								if((freeBlock = searchBitmap2(0)) > 0){
 									setBitmap2(freeBlock, 1);
-									setLBN(regMfileAux.numMFT, freeBlock, regMfileAux.pointer);
+									setLBN(regMfileAux.numMFT, freeBlock, regMfileAux.pointer,&regMfileAux);
 								}
 								else{
 									printf("CABOU O DISCO <3");
 									return ERRO;
 								}
-								setRegCont(regMfileAux.numMFT, 1, regMfileAux.pointer);
+								setRegCont(regMfileAux.numMFT, 1, regMfileAux.pointer,&regMfileAux);
 							}
 						}
 					}

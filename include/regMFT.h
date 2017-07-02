@@ -75,14 +75,14 @@ int getContinuosBlocks(REGMFT reg);
 
 //seta o tipo na copia do registro
 //ass:Henrique
-int setRegType(int numMFT, int type, int numTupla);
+int setRegType(int numMFT, int type, int numTupla, REGMFT *regM);
 
 //seta numero de blocos contiguos do registro
 //ass:Nicolas
-int setRegCont(int numMFT , int cont, int numTupla);
+int setRegCont(int numMFT , int cont, int numTupla, REGMFT *regM);
 
 // bunda: henrique
-int setLBN(int numMFT, int lbn, int numTupla);
+int setLBN(int numMFT, int lbn, int numTupla, REGMFT *regM);
 
 // bunda: henrique
-int setVBN(int numMFT, int vbn, int numTupla);
+int setVBN(int numMFT, int vbn, int numTupla, REGMFT *regM);

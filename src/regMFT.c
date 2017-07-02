@@ -92,6 +92,7 @@ int getVBN(REGMFT reg){
 	int out=0;
 	int exp=1;
 	for (int i=0; i<4; i++) {
+		printf("\n i=%d coisa:%d ", i, (unsigned int) (reg.data[SIZETUPLA*reg.pointer + 4 + i]*exp));
 		out += (int) reg.data[SIZETUPLA*reg.pointer + 4 + i]*exp;
 		exp*=256;
 	}
@@ -126,37 +127,47 @@ int getContinuosBlocks(REGMFT reg){
 
 //seta o tipo na copia do registro
 //ass:Henrique
-int setRegType(int numMFT, int type, int numTupla) {
+int setRegType(int numMFT, int type, int numTupla, REGMFT *regM) {
 	unsigned char buffer[SECTOR_SIZE];
+	int numeroTupla;
 
 	if (type <= 2 && type >= -1) {
 		if(numTupla >= NUMTUPLAS/2){
 			read_sector(blockSize + numMFT*2 + 1, buffer);
+			numeroTupla=numTupla-NUMTUPLAS/2;
 		}
 		else{
 			read_sector(blockSize + numMFT*2, buffer);
+			numeroTupla=numTupla;
 		}
 		
 
 		if (type != -1){
-			buffer[numTupla*16] = (char) type;
-			buffer[numTupla*16 + 1] = 0;
-			buffer[numTupla*16 + 2] = 0;
-			buffer[numTupla*16 + 3] = 0;
+			buffer[numeroTupla*16] = (char) type;
+			buffer[numeroTupla*16 + 1] = 0;
+			buffer[numeroTupla*16 + 2] = 0;
+			buffer[numeroTupla*16 + 3] = 0;
 			
 		} else {
-			buffer[numTupla*16] = 0xFF;
-			buffer[numTupla*16 + 1] = 0xFF;
-			buffer[numTupla*16 + 2] = 0xFF;
-			buffer[numTupla*16 + 3] = 0xFF;
+			buffer[numeroTupla*16] = 0xFF;
+			buffer[numeroTupla*16 + 1] = 0xFF;
+			buffer[numeroTupla*16 + 2] = 0xFF;
+			buffer[numeroTupla*16 + 3] = 0xFF;
 		}
-		
 		
 		if(numTupla >= NUMTUPLAS/2){
 			write_sector(blockSize + numMFT*2 + 1, buffer);
+			regM->data[numTupla*16]=buffer[numeroTupla*16];
+			regM->data[numTupla*16+1]=buffer[numeroTupla*16+1];
+			regM->data[numTupla*16+2]=buffer[numeroTupla*16+2];
+			regM->data[numTupla*16+3]=buffer[numeroTupla*16+3];
 		}
 		else{
 			write_sector(blockSize + numMFT*2, buffer);
+			regM->data[numTupla*16]=buffer[numeroTupla*16];
+			regM->data[numTupla*16+1]=buffer[numeroTupla*16+1];
+			regM->data[numTupla*16+2]=buffer[numeroTupla*16+2];
+			regM->data[numTupla*16+3]=buffer[numeroTupla*16+3];
 		}
 		
 		return OK;
@@ -167,29 +178,39 @@ int setRegType(int numMFT, int type, int numTupla) {
 
 //seta numero de blocos contiguos do registro
 //ass:Nicolas
-int setRegCont(int numMFT , int cont, int numTupla){
+int setRegCont(int numMFT , int cont, int numTupla, REGMFT *regM){
 	unsigned char buffer[SECTOR_SIZE];
-	int exp=1;
+	int exp=1, numeroTupla;
 	
 	if(cont > 0){
 		if(numTupla >= NUMTUPLAS/2){
 			read_sector(blockSize + numMFT*2 + 1, buffer);
+			numeroTupla=numTupla-NUMTUPLAS/2;
 		}
 		else{
 			read_sector(blockSize + numMFT*2, buffer);
+			numeroTupla=numTupla;
 		}
 		
 		for (int i=0; i<4; i++) {
-			buffer[numTupla*16 + 12 + i] = (char)(cont/exp);
+			buffer[numeroTupla*16 + 12 + i] = (char)(cont/exp);
 			exp*=256;
 		}	
-
+		
 	
 		if(numTupla >= NUMTUPLAS/2){
 			write_sector(blockSize + numMFT*2 + 1, buffer);
+			regM->data[numTupla*16+12]=buffer[numeroTupla*16+12];
+			regM->data[numTupla*16+1+12]=buffer[numeroTupla*16+1+12];
+			regM->data[numTupla*16+2+12]=buffer[numeroTupla*16+2+12];
+			regM->data[numTupla*16+3+12]=buffer[numeroTupla*16+3+12];
 		}
 		else{
 			write_sector(blockSize + numMFT*2, buffer);
+			regM->data[numTupla*16+12]=buffer[numeroTupla*16+12];
+			regM->data[numTupla*16+1+12]=buffer[numeroTupla*16+1+12];
+			regM->data[numTupla*16+2+12]=buffer[numeroTupla*16+2+12];
+			regM->data[numTupla*16+3+12]=buffer[numeroTupla*16+3+12];
 		}
 		
 		return OK;
@@ -200,29 +221,40 @@ int setRegCont(int numMFT , int cont, int numTupla){
 	
 }
 
-int setLBN(int numMFT, int lbn, int numTupla){
+//ass:gabriel
+int setLBN(int numMFT, int lbn, int numTupla, REGMFT *regM){
 	unsigned char buffer[SECTOR_SIZE];
-	int exp=1;
+	int exp=1, numeroTupla;
 	
 	if(lbn > 0){
 		if(numTupla >= NUMTUPLAS/2){
 			read_sector(blockSize + numMFT*2 + 1, buffer);
+			numeroTupla=numTupla-NUMTUPLAS/2;
 		}
 		else{
 			read_sector(blockSize + numMFT*2, buffer);
+			numeroTupla=numTupla;
 		}
 		
 		for (int i=0; i<4; i++) {
-			buffer[numTupla*16 + 8 + i] = (char)(lbn/exp);
+			buffer[numeroTupla*16 + 8 + i] = (char)(lbn/exp);
 			exp*=256;
 		}	
-
+		
 	
 		if(numTupla >= NUMTUPLAS/2){
 			write_sector(blockSize + numMFT*2 + 1, buffer);
+			regM->data[numTupla*16+8]=buffer[numeroTupla*16+8];
+			regM->data[numTupla*16+1+8]=buffer[numeroTupla*16+1+8];
+			regM->data[numTupla*16+2+8]=buffer[numeroTupla*16+2+8];
+			regM->data[numTupla*16+3+8]=buffer[numeroTupla*16+3+8];
 		}
 		else{
 			write_sector(blockSize + numMFT*2, buffer);
+			regM->data[numTupla*16+8]=buffer[numeroTupla*16+8];
+			regM->data[numTupla*16+1+8]=buffer[numeroTupla*16+1+8];
+			regM->data[numTupla*16+2+8]=buffer[numeroTupla*16+2+8];
+			regM->data[numTupla*16+3+8]=buffer[numeroTupla*16+3+8];
 		}
 		
 		return OK;
@@ -232,29 +264,40 @@ int setLBN(int numMFT, int lbn, int numTupla){
 	}
 }
 
-int setVBN(int numMFT, int vbn, int numTupla){
+//ass:gabreil
+int setVBN(int numMFT, int vbn, int numTupla, REGMFT *regM){
 	unsigned char buffer[SECTOR_SIZE];
-	int exp=1;
+	int exp=1, numeroTupla;
 	
-	if(vbn > 0){
+	if(vbn >= 0){
 		if(numTupla >= NUMTUPLAS/2){
 			read_sector(blockSize + numMFT*2 + 1, buffer);
+			numeroTupla=numTupla-NUMTUPLAS/2;
 		}
 		else{
 			read_sector(blockSize + numMFT*2, buffer);
+			numeroTupla=numTupla;
 		}
 		
 		for (int i=0; i<4; i++) {
-			buffer[numTupla*16 + 4 + i] = (char)(vbn/exp);
+			buffer[numeroTupla*16 + 4 + i] = (char)(vbn/exp);
 			exp*=256;
 		}	
-
+		
 	
 		if(numTupla >= NUMTUPLAS/2){
 			write_sector(blockSize + numMFT*2 + 1, buffer);
+			regM->data[numTupla*16+4]=buffer[numeroTupla*16+4];
+			regM->data[numTupla*16+1+4]=buffer[numeroTupla*16+1+4];
+			regM->data[numTupla*16+2+4]=buffer[numeroTupla*16+2+4];
+			regM->data[numTupla*16+3+4]=buffer[numeroTupla*16+3+4];
 		}
 		else{
 			write_sector(blockSize + numMFT*2, buffer);
+			regM->data[numTupla*16+4]=buffer[numeroTupla*16+4];
+			regM->data[numTupla*16+1+4]=buffer[numeroTupla*16+1+4];
+			regM->data[numTupla*16+2+4]=buffer[numeroTupla*16+2+4];
+			regM->data[numTupla*16+3+4]=buffer[numeroTupla*16+3+4];
 		}
 		
 		return OK;

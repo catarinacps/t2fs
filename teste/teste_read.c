@@ -4,6 +4,11 @@
 int main() {
 	FILE2 rendeu;
     char buffer[50];
+
+    for(int i=0; i<50; i++){
+        buffer[i]=0;
+    }
+
     printf("\nIniciando teste da funcao read2.\n");
     printf("Abrindo o arquivo file1...\n");
 
