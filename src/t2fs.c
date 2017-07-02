@@ -36,7 +36,7 @@ FILE2 create2 (char *filename) {
 						token = strtok(NULL,"/");
 					} while(token!=NULL);
 					
-					writeNewFileRecord(aux, arquivosAbertos[i].numMFT, regR, &regM, regAvo);
+					writeNewRecord(aux, arquivosAbertos[i].numMFT, regR, &regM, regAvo, IS_FILE);
 					
 					//dar write sector
 					
@@ -598,39 +598,27 @@ int mkdir2 (char *pathname) {
     if (isValidPath(pathname2) == OK && fileExists(pathname2, &regR, &regM, &regAvo) == MISSING_FILE) {
 		if ((freeRegNum = findFreeMFT()) != ERRO) {
 			loadMFT(&regM2, freeRegNum, bootBlock.blockSize);
-            setRegType(freeRegNum,1,0, &regM2);
+            
+			setRegType(freeRegNum,1,0, &regM2);
 			setRegType(freeRegNum,0,1, &regM2);
+			setVBN(freeRegNum, 0, 0, &regM2);
 			if((freeBlkNum = searchBitmap2(0)) == ERRO){
 				return ERRO;
 			}
+			setBitmap2(freeBlkNum, 1);
 			setLBN(freeRegNum, freeBlkNum, 0, &regM2);
-			setVBN(freeRegNum, 0, 0, &regM2);
 			setRegCont(freeRegNum, 1, 0, &regM2);
 
 
-			for (int i=0; i<20; i++){
-				if (arquivosAbertos[i].estaAberto == ERRO) {
-					arquivosAbertos[i].handle = getHandle();
-					arquivosAbertos[i].numMFT = freeRegNum;
-					arquivosAbertos[i].currentPointer = 0;
-					arquivosAbertos[i].estaAberto = OK;
-					strcpy(arquivosAbertos[i].path,pathname2);
+
+			token = strtok(pathname2,"/");
+			do {
+				aux = token;
+				token = strtok(NULL,"/");
+			} while(token!=NULL);
 					
-					//achar registro do diretorio
-					token = strtok(pathname2,"/");
-					do {
-						aux = token;
-						token = strtok(NULL,"/");
-					} while(token!=NULL);
-					
-					writeNewFileRecord(aux, arquivosAbertos[i].numMFT, regR, &regM, regAvo);
-					
-					//dar write sector
-					
-					return arquivosAbertos[i].handle;
-				}
-			}
-			return ERRO; //nunca chegará aki
+			writeNewRecord(aux, freeRegNum, regR, &regM, regAvo, IS_DIR);	
+			return OK;
         } else { 
 			return ERRO;
 		}

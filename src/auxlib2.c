@@ -69,7 +69,10 @@ int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD *
 			}
 			getRecordName(*regR, buffer);
 		}
-		regR2=regR;
+		if(regR2==NULL){
+			regR2=malloc(sizeof(REGRECORD));
+		}
+		*regR2=*regR;
 		if (isRecordFile(*regR) == OK) {
 			//ele achou um arquivo com o nome da pasta do caminho
 			*regRout=regR;
@@ -148,7 +151,7 @@ int loadBootBlock(){
 }
 
 //ass:Gabriel
-int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo) {	//so usamos numMFT de regM
+int writeNewRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo, int tipo) {	//so usamos numMFT de regM
 	REGMFT regM2;
 	REGRECORD regR2;
 	unsigned char buffer[SECTOR_SIZE];
@@ -164,7 +167,7 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 
 			if (getBitmap2(getLBN(regM2) + getContinuosBlocks(regM2)) == 0) {		// achamos um novo bloco, formatamos ele e escrevemos ele
 				setBitmap2(getLBN(regM2) + getContinuosBlocks(regM2), 1);
-				setRegCont(regM2.numMFT, getContinuosBlocks(regM2) + 1, regM2.pointer, &regM2);	// a partir daqui, regM2 esta desatualizado pra kct mlk
+				setRegCont(regM2.numMFT, getContinuosBlocks(regM2) + 1, regM2.pointer, &regM2);
 
 				for (int i=0; i < 4; i++) {
 					read_sector((getLBN(regM2) + getContinuosBlocks(regM2)) * bootBlock.blockSize + i, buffer);
@@ -242,9 +245,16 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 		}
 	}
 	//aki regR2 tem um registro livre
-	setRecordType(&regR2, 1);
+	if(tipo==IS_FILE){
+		setRecordType(&regR2, 1);
+		setBlocksFileSize(&regR2, 0);	
+	}else{
+		setRecordType(&regR2, 2);
+		setBlocksFileSize(&regR2, 1);
+	}
+	
+	
 	setRecordName(&regR2, name);
-	setBlocksFileSize(&regR2, 0);
 	setBytesFileSize(&regR2, 0);
 	setMFTNumber(&regR2, numMFT);
 	
@@ -252,8 +262,11 @@ int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, RE
 	
 	//falta atualizar o registro da pasta na pasta pai
 	if(regAvo != NULL){
+		
 		setBytesFileSize(regAvo, getBytesFileSize(*regAvo) + SIZERECORD);
+		printf("\n size: %d", getBytesFileSize(*regAvo));
 		write_sector(regAvo->blkPointer * bootBlock.blockSize + regAvo->sectPointer, regAvo->data);
+		printf("\n setor:%d blkptr: %d sctptr:%d", regAvo->blkPointer * bootBlock.blockSize + regAvo->sectPointer, regAvo->blkPointer, regAvo->sectPointer);
 	}
 	
 	return OK;

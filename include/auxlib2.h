@@ -9,6 +9,8 @@
 #include "t2fs.h"
 #include "regRecord.h"
 
+#define IS_DIR 2
+#define IS_FILE 1
 #define IS_A_DIR -3
 #define MISSING_FILE -2
 #define ERRO -1
@@ -49,7 +51,7 @@ int findFreeMFT();
 int loadBootBlock();
 
 //ass:Gabriel
-int writeNewFileRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo);
+int writeNewRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo, int tipo);
 
 //ass:gabriel
 int getHandle();

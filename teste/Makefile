@@ -5,7 +5,7 @@
 CC=gcc
 LIB_DIR=../lib
 
-TARGET = teste_create teste_open teste_delete teste_read teste_write teste_truncate
+TARGET = teste_create teste_open teste_delete teste_read teste_write teste_truncate teste_mkdir
 
 all: $(TARGET)
 
@@ -27,6 +27,8 @@ teste_write: teste_write.c $(LIB_DIR)/libt2fs.a
 teste_truncate: teste_truncate.c $(LIB_DIR)/libt2fs.a
 	$(CC) -o teste_truncate teste_truncate.c -L$(LIB_DIR) -lt2fs -Wall
 
+teste_mkdir: teste_mkdir.c $(LIB_DIR)/libt2fs.a
+	$(CC) -o teste_mkdir teste_mkdir.c -L$(LIB_DIR) -lt2fs -Wall
 	
 clean:
 	rm -rf $(TARGET) *.o *~
