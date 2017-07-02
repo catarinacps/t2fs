@@ -9,7 +9,7 @@
 #include "t2fs.h"
 #include "regRecord.h"
 
-
+#define IS_A_DIR -3
 #define MISSING_FILE -2
 #define ERRO -1
 #define OK 0
@@ -41,8 +41,6 @@ LISTA *diretoriosAbertos;
 int openSpots();
 
 int isValidPath(char caminho[]);
-
-int isRealPath(char caminho[]);
 
 int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD **regRout2);
 

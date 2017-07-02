@@ -36,46 +36,7 @@ int isValidPath(char caminho[]) {
 	return OK;
 }
 
-// seu lugar e no museu
-// talvez n seja mais uma merda
-// ass: isReal
-int isRealPath(char caminho[]) {
-	REGMFT regM;
-	REGRECORD regR;
-	char buffer[51], caminho2[200], *token, *tokenAux;
-
-	strcpy(caminho2, caminho);
-
-	loadMFT(&regM, 1, bootBlock.blockSize);
-	loadFirstRecord(&regR, regM, bootBlock.blockSize);
-
-	token = strtok(caminho2, "/");
-	tokenAux = token;
-
-	if (token == NULL) {
-		return ERRO;
-	}
-	while ((token = strtok(NULL, "/"))!=NULL) {
-		getRecordName(regR, buffer);
-		while (strcmp(buffer, tokenAux) != 0) {
-			if (nextRecord(&regR, &regM) == ERRO) {
-				return ERRO;
-			}
-			getRecordName(regR, buffer);
-		}
-
-		if (isRecordFile(regR) == OK) {
-			return ERRO;
-		}
-		loadMFT(&regM, getMFTNumber(regR), bootBlock.blockSize);
-		loadFirstRecord(&regR, regM, bootBlock.blockSize);
-		tokenAux = token;
-	}
-
-	return OK;
-}
-
-
+//ass: henrique
 int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD **regRout2) {
 	REGMFT regM;
 	REGRECORD *regR, *regR2;
@@ -127,7 +88,7 @@ int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD *
 			*regRout=regR;		//ele achou o caminho mas nao achou o arquivo; regRout o ultimo arquivo da pasta
 			*regMout=regM;
 			*regRout2=regR2;
-			return MISSING_FILE;			//eh isso q a gnt quer no create
+			return MISSING_FILE;			//eh isso q a gnt quer no create e no mkdir
 		}
 		getRecordName(*regR, buffer);
 	}
@@ -138,7 +99,7 @@ int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD *
 	if (isRecordFile(*regR) == OK) {
 		return OK;
 	} else {
-		return ERRO;
+		return IS_A_DIR;
 	}
 }
 

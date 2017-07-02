@@ -92,7 +92,6 @@ int getVBN(REGMFT reg){
 	int out=0;
 	int exp=1;
 	for (int i=0; i<4; i++) {
-		printf("\n i=%d coisa:%d ", i, (unsigned int) (reg.data[SIZETUPLA*reg.pointer + 4 + i]*exp));
 		out += (int) reg.data[SIZETUPLA*reg.pointer + 4 + i]*exp;
 		exp*=256;
 	}

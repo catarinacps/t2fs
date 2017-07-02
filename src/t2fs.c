@@ -497,8 +497,67 @@ int write2 (FILE2 handle, char *buffer, int size) {
 }
 
 int truncate2 (FILE2 handle) {
+	REGMFT regM, regMfile, regMemes;
+	REGRECORD *regR, *regAvo;
+	int VBNatual, achou=ERRO, VBNeof, contBlk;
+
 	initLib();
-    return ERRO;
+	
+	for (int i=0; i<20; i++) {
+		if (arquivosAbertos[i].handle == handle) {
+
+			fileExists(arquivosAbertos[i].path, &regR, &regM, &regAvo);
+			loadMFT(&regMfile, getMFTNumber(*regR), bootBlock.blockSize);
+
+			if (arquivosAbertos[i].currentPointer >= getBytesFileSize(*regR)) {
+				return ERRO;
+			}
+			
+			
+			VBNatual=arquivosAbertos[i].currentPointer / (bootBlock.blockSize * SECTOR_SIZE);
+			if(arquivosAbertos[i].currentPointer % (bootBlock.blockSize * SECTOR_SIZE)==0){
+				VBNatual--;
+			}
+			while (achou == ERRO) {
+				if (isTuplaJmp(regMfile) == OK) {
+					loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+				} else {
+					if(VBNatual >= getVBN(regMfile) && VBNatual < (getVBN(regMfile) + getContinuosBlocks(regMfile))){
+						achou=OK;
+					}else{
+						nextTupla(&regMfile);
+					}
+				}
+			}
+			VBNeof = (getBytesFileSize(*regR) - 1) / (bootBlock.blockSize * SECTOR_SIZE);
+
+			regMemes=regMfile;
+			contBlk=getContinuosBlocks(regMfile);
+			for(int j=VBNatual+1; j<=VBNeof; j++){
+				if(j >= getVBN(regMfile) && j < getVBN(regMfile) + contBlk){
+					setBitmap2(j - getVBN(regMfile) + getLBN(regMfile),0);
+					setRegCont(regMfile.numMFT, getContinuosBlocks(regMfile) - 1, regMfile.pointer, &regMfile);
+					if(getContinuosBlocks(regMfile)==0){
+						setRegType(regMfile.numMFT, -1, regMfile.pointer, &regMfile);
+					}
+
+				}else{
+					nextTupla(&regMfile);
+					if (isTuplaJmp(regMfile) == OK) {
+						loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+					}
+					contBlk=getContinuosBlocks(regMfile);
+				}
+			}
+			nextTupla(&regMemes);
+			setRegType(regMemes.numMFT, 0, regMemes.pointer, &regMemes);
+
+			setBytesFileSize(regR, arquivosAbertos[i].currentPointer);
+			write_sector(regR->blkPointer * bootBlock.blockSize + regR->sectPointer, regR->data);
+			return OK;
+			}
+		}
+	return ERRO;
 }
 
 //ass:gabriel
@@ -526,8 +585,58 @@ int seek2 (FILE2 handle, DWORD offset) {
 }
 
 int mkdir2 (char *pathname) {
+	int freeRegNum, freeBlkNum;
+	REGRECORD *regR, *regAvo;
+	REGMFT regM, regM2;
+	char *token, *aux;
+	char pathname2[200];
+
+	strcpy(pathname2,pathname);//se nao da segmentation falut pq strtok n gosta de parametros
+
 	initLib();
-    return ERRO;
+
+    if (isValidPath(pathname2) == OK && fileExists(pathname2, &regR, &regM, &regAvo) == MISSING_FILE) {
+		if ((freeRegNum = findFreeMFT()) != ERRO) {
+			loadMFT(&regM2, freeRegNum, bootBlock.blockSize);
+            setRegType(freeRegNum,1,0, &regM2);
+			setRegType(freeRegNum,0,1, &regM2);
+			if((freeBlkNum = searchBitmap2(0)) == ERRO){
+				return ERRO;
+			}
+			setLBN(freeRegNum, freeBlkNum, 0, &regM2);
+			setVBN(freeRegNum, 0, 0, &regM2);
+			setRegCont(freeRegNum, 1, 0, &regM2);
+
+
+			for (int i=0; i<20; i++){
+				if (arquivosAbertos[i].estaAberto == ERRO) {
+					arquivosAbertos[i].handle = getHandle();
+					arquivosAbertos[i].numMFT = freeRegNum;
+					arquivosAbertos[i].currentPointer = 0;
+					arquivosAbertos[i].estaAberto = OK;
+					strcpy(arquivosAbertos[i].path,pathname2);
+					
+					//achar registro do diretorio
+					token = strtok(pathname2,"/");
+					do {
+						aux = token;
+						token = strtok(NULL,"/");
+					} while(token!=NULL);
+					
+					writeNewFileRecord(aux, arquivosAbertos[i].numMFT, regR, &regM, regAvo);
+					
+					//dar write sector
+					
+					return arquivosAbertos[i].handle;
+				}
+			}
+			return ERRO; //nunca chegará aki
+        } else { 
+			return ERRO;
+		}
+    } else {
+		return ERRO;
+	}
 }
 
 int rmdir2 (char *pathname) {
