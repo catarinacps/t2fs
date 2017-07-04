@@ -1,6 +1,7 @@
 #include "../include/auxlib2.h"
-int handleUltraMasterGenerator=1;
-int hasBegun=ERRO;
+
+int handleUltraMasterGenerator = 1;
+short int hasBegun = ERRO;
 
 //BLANK SPACE
 //ass:Henrique
@@ -36,7 +37,8 @@ int isValidPath(char caminho[]) {
 	return OK;
 }
 
-//ass: henrique
+// ass: nigolas
+// essa monstruosidade nao deveria ser bunda henrique
 int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD **regRout2) {
 	REGMFT regM;
 	REGRECORD *regR, *regR2;
@@ -102,7 +104,7 @@ int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD *
 	if (isRecordFile(*regR) == OK) {
 		return OK;
 	} else {
-		return IS_A_DIR;
+		return IS_DIR;
 	}
 }
 
@@ -283,12 +285,11 @@ void initLib(){
 	int i;
 	if(hasBegun!=OK){
 		loadBootBlock();
-		diretoriosAbertos=initLista;
+		diretoriosAbertos=initLista();
 		hasBegun=OK;
 		for(i=0; i<20; i++){
 			arquivosAbertos[i].estaAberto=ERRO;
 		}
-		diretoriosAbertos=initLista();	
 	}
 		
 }
@@ -375,17 +376,17 @@ DIR2 insertDir(int numMFT, char *pathname){
 	ODIN *dir = malloc(sizeof(ODIN));
 
 	dir->handle=getHandle();
-	strcpy(dir->pathname, pathname);
+	strcpy(dir->path, pathname);
 	dir->numMFT=numMFT;
-	dir->currentpointer=0;
+	dir->currentPointer=0;
 
 	diretoriosAbertos=insertLista(diretoriosAbertos, (void *)dir);
 
 	return dir->handle;
 }
 
-int removeDir(DIR handle){
-	ODIN *dir;
+int removeDir(DIR2 handle){
+	// ODIN *dir;
 	int i=0;
 	if(diretoriosAbertos==NULL){
 		return ERRO;

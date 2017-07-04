@@ -11,7 +11,6 @@
 
 #define IS_DIR 2
 #define IS_FILE 1
-#define IS_A_DIR -3
 #define MISSING_FILE -2
 #define ERRO -1
 #define OK 0
@@ -68,13 +67,13 @@ int writeBlock(REGMFT regM, int VBN, char *buffer);
 //---------------------Funcs de lista-------------------------
 //ass: gabriel o obstinado
 
-ODIN* findDir(DIR2 handle){
+ODIN* findDir(DIR2 handle);
 
 int isOpenDir(char *pathname);
 
 DIR2 insertDir(int numMFT, char *pathname);
 
-int removeDir(DIR handle);
+int removeDir(DIR2 handle);
 //-----------------------------------------------------------
 
 

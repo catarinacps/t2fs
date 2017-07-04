@@ -625,7 +625,7 @@ int mkdir2 (char *pathname) {
 					setRecordType(&regRneto, 0);
 					nextRecord(&regRneto, &regM2);
 				}
-				write_sector(bootBlock.blockSize * regRneto.blkPointer + regRneto.sectPointer);
+				write_sector(bootBlock.blockSize * regRneto.blkPointer + regRneto.sectPointer, regRneto.data);
 			}
 			return OK;
         } else { 
@@ -644,17 +644,15 @@ int rmdir2 (char *pathname) {
 }
 
 DIR2 opendir2 (char *pathname) {
-	int freeRegNum, freeBlkNum;
-	REGRECORD *regR, *regAvo, regRneto;
-	REGMFT regM, regM2;
-	char *token, *aux;
+	REGRECORD *regR, *regAvo;
+	REGMFT regM;
 	char pathname2[200];
 
 	strcpy(pathname2,pathname);//se nao da segmentation falut pq strtok n gosta de parametros
 
 	initLib();
 
-    if (isValidPath(pathname2) == OK && fileExists(pathname2, &regR, &regM, &regAvo) == IS_A_DIR) {
+    if (isValidPath(pathname2) == OK && fileExists(pathname2, &regR, &regM, &regAvo) == IS_DIR) {
 		if (isOpenDir(pathname2) == ERRO) {
 			return insertDir(regM.numMFT, pathname2);
         } else { 
@@ -673,9 +671,8 @@ int readdir2 (DIR2 handle, DIRENT2 *dentry) {
 }
 
 int closedir2 (DIR2 handle) {
-
 	initLib();
 
-    return ERRO;
+	return removeDir(handle);
 }
 
