@@ -12,8 +12,8 @@
 
 #	Flags de compilaçao. Debug para uso no GDB
 CC = gcc
-DEBUG = -g -std=c99
-CFLAGS = -I$(INC_DIR) -Wall -m32 $(DEBUG)
+DEBUG = -g
+CFLAGS = -I$(INC_DIR) -Wall -m32 -std=c99 $(DEBUG)
 
 #	Diretorios do projeto
 INC_DIR = include
