@@ -9,10 +9,10 @@
 #include "t2fs.h"
 #include "regRecord.h"
 
-#define IS_DIR 2
-#define IS_FILE 1
+#define IS_DIR 3
+#define IS_FILE 5
 #define MISSING_FILE -2
-#define ERRO -1
+#define ERRO -3
 #define OK 0
 #define CARACTERES_VALIDOS "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ.0123456789"
 
@@ -73,7 +73,9 @@ int isOpenDir(char *pathname);
 
 DIR2 insertDir(int numMFT, char *pathname);
 
-int removeDir(DIR2 handle);
+int removeDirByHandle(DIR2 handle);
+
+int removeDirByPath(char *pathname);
 //-----------------------------------------------------------
 
 

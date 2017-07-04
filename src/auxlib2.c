@@ -21,7 +21,9 @@ int isValidPath(char caminho[]) {
     char *token, caminho2[200];
 	
 	strcpy(caminho2, caminho);
-
+	if(strcmp("/",caminho2) == OK){
+		return OK;
+	}
 	if (caminho[0] != '/') {
 		return ERRO;
 	}
@@ -47,6 +49,12 @@ int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD *
 	regR2=NULL;
 
 	strcpy(caminho2, caminho);
+	if(strcmp("/",caminho2) == OK){
+		*regRout=NULL;
+		//*regMout=NULL;
+		*regRout2=NULL;
+		return IS_DIR;
+	}
 
 	loadMFT(&regM, 1, bootBlock.blockSize);
 	loadFirstRecord(regR, regM, bootBlock.blockSize);
@@ -385,7 +393,7 @@ DIR2 insertDir(int numMFT, char *pathname){
 	return dir->handle;
 }
 
-int removeDir(DIR2 handle){
+int removeDirByHandle(DIR2 handle){
 	// ODIN *dir;
 	int i=0;
 	if(diretoriosAbertos==NULL){
@@ -402,6 +410,33 @@ int removeDir(DIR2 handle){
 			}
 		}
 		if(((ODIN*)diretoriosAbertos->dados)->handle==handle){
+			diretoriosAbertos=removeLista(diretoriosAbertos, i);
+			diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+			return OK;
+		}else{
+			diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+			return ERRO;
+		}
+	}
+}
+
+int removeDirByPath(char *pathname){
+	// ODIN *dir;
+	int i=0;
+	if(diretoriosAbertos==NULL){
+		return ERRO;
+	}else{
+		while(diretoriosAbertos->prox != NULL){
+			if(strcmp(pathname, ((ODIN*)diretoriosAbertos->dados)->path) == OK){
+				diretoriosAbertos=removeLista(diretoriosAbertos, i);
+				diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+				return OK;
+			}else{
+				diretoriosAbertos=diretoriosAbertos->prox;
+				i++;
+			}
+		}
+		if(strcmp(pathname, ((ODIN*)diretoriosAbertos->dados)->path) == OK){
 			diretoriosAbertos=removeLista(diretoriosAbertos, i);
 			diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
 			return OK;

@@ -8,7 +8,7 @@
 #define SIZEREGMFT 512
 #define SIZETUPLA 16
 #define NUMTUPLAS 32
-#define ERRO -1
+#define ERRO -3
 #define OK 0
 
 typedef struct {

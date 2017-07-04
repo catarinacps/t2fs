@@ -3,7 +3,18 @@
 
 int identify2 (char *name, int size) {
 	initLib();
-    return 0;
+	char nomes[120];
+
+    strcpy(nomes, "Gabriel Stefaniak Niemiec 262503\n"
+                  "Henrique Correa Pereira da Silva 262508\n"
+                  "Nicolas Eymael da Silva 262506\n");
+    if (strlen(nomes) <= size) {
+        strcpy(name, nomes);
+        return OK;
+    } else {
+        return ERRO;
+    }
+    return OK;
 }
 
 FILE2 create2 (char *filename) {
@@ -636,13 +647,122 @@ int mkdir2 (char *pathname) {
 	}
 }
 
+//ass:nicolas
 int rmdir2 (char *pathname) {
+	REGRECORD *regR, *regAvo;
+	REGMFT regM, regMfile, regMemes, regM2;
+	char pathname2[200];
+	int diretoriosBloco = 0, tuplaCounter = 0, lastMFTbeforeJump;
+
+	unsigned char buffer[SECTOR_SIZE];
+
+	strcpy(pathname2,pathname);	//se nao da segmentation falut pq strtok n gosta de parametros
 
 	initLib();
 
-    return ERRO;
+	if(strcmp("/",pathname2) == OK){
+		return ERRO; //nao pode deletar a rute
+	}
+
+	if (isValidPath(pathname2) == OK && fileExists(pathname2, &regR, &regM, &regAvo) == IS_DIR) {
+
+		if(getBytesFileSize(* regR) != 0){
+			return ERRO;
+		}
+		
+		//se ele tah aberto, fecha
+		if(isOpenDir(pathname2)==OK){
+			removeDirByPath(pathname2);
+		}
+		
+
+		if (regAvo != NULL) {
+			setBytesFileSize(regAvo, getBytesFileSize(*regAvo) - SIZERECORD);
+			write_sector(regAvo->blkPointer * bootBlock.blockSize + regAvo->sectPointer, regAvo->data);
+		}
+
+		loadMFT(&regMfile, getMFTNumber(*regR), bootBlock.blockSize);
+
+		while (isTuplaEnd(regMfile) == ERRO) {
+			if (isTuplaJmp(regMfile) == OK) {
+				loadMFT(&regM2,getMFTNumber(*regR),bootBlock.blockSize);
+				setRegType(getMFTNumber(*regR), -1, 0, &regM2);
+				loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
+			} else {
+				loadMFT(&regM2,getMFTNumber(*regR),bootBlock.blockSize);
+				setRegType(getMFTNumber(*regR), -1, 0, &regM2);
+				for (int i=0; i<getContinuosBlocks(regMfile); i++) {
+					setBitmap2(getLBN(regMfile) + i, 0);
+				}
+				nextTupla(&regMfile);
+			}
+		}
+		loadMFT(&regM2,getMFTNumber(*regR),bootBlock.blockSize);
+		setRegType(getMFTNumber(*regR), -1, 0, &regM2);
+
+		setRecordType(regR, 0);
+		write_sector(bootBlock.blockSize * regR->blkPointer + regR->sectPointer, regR->data);
+
+		// agora veremos se e necessario cortar blocos do diretorio apos deletar o record
+		// XP INCOMING >>>>> :fire: :fire: :top: :ok_hand:
+
+		for (regR->sectPointer=0; regR->sectPointer<bootBlock.blockSize; regR->sectPointer++) {
+			read_sector(bootBlock.blockSize * regR->blkPointer + regR->sectPointer , regR->data);
+			for (regR->pointer=0; regR->pointer<4; regR->pointer++) {
+				if (isRecordFree(*regR) != OK) {
+					diretoriosBloco++;
+				}
+			}
+		}
+
+		if (diretoriosBloco == 0) {
+			regMemes = regR->regM;
+			lastMFTbeforeJump = regMemes.numMFT;
+
+			while (isTuplaEnd(regMemes) == ERRO) {
+				if (isTuplaJmp(regMemes) == OK) {
+					tuplaCounter = 0;
+					lastMFTbeforeJump = regMemes.numMFT;
+					loadMFT(&regMemes, getVBN(regMemes), bootBlock.blockSize);
+				} else {
+					tuplaCounter++;
+					nextTupla(&regMemes);
+				}
+			}
+			tuplaCounter--;
+			backTupla(&regMemes);
+
+			for (int i=0; i<bootBlock.blockSize; i++) {
+				read_sector(bootBlock.blockSize * (getLBN(regMemes) + getContinuosBlocks(regMemes) - 1) + i, buffer);
+				write_sector(bootBlock.blockSize * regR->blkPointer + i, buffer);
+			}
+
+			if (getContinuosBlocks(regMemes) > 1) {
+				setRegCont(regMemes.numMFT, getContinuosBlocks(regMemes) - 1, tuplaCounter,&regMemes);
+				setBitmap2(getContinuosBlocks(regMemes) + getLBN(regMemes), 0);
+			} else {
+				setBitmap2(getLBN(regMemes), 0);
+				if (tuplaCounter > 0) {
+					setRegType(regMemes.numMFT, 0, tuplaCounter, &regMemes);
+					setRegType(regMemes.numMFT, -1, tuplaCounter + 1, &regMemes);
+				} else {
+					setRegType(regMemes.numMFT, -1, tuplaCounter, &regMemes);
+					setRegType(regMemes.numMFT, -1, tuplaCounter + 1, &regMemes);
+					loadMFT(&regM2,lastMFTbeforeJump,bootBlock.blockSize);
+					setRegType(lastMFTbeforeJump, 0, 31, &regM2);	// niemiec acha que nao
+				}
+			}
+		}
+
+		return OK;
+    } else {
+		return ERRO;
+	}
+	
+    return 0;
 }
 
+//ass:henriqueeeeeeeee
 DIR2 opendir2 (char *pathname) {
 	REGRECORD *regR, *regAvo;
 	REGMFT regM;
@@ -654,7 +774,11 @@ DIR2 opendir2 (char *pathname) {
 
     if (isValidPath(pathname2) == OK && fileExists(pathname2, &regR, &regM, &regAvo) == IS_DIR) {
 		if (isOpenDir(pathname2) == ERRO) {
-			return insertDir(regM.numMFT, pathname2);
+			if(strcmp("/",pathname) == OK){
+				return insertDir(1,pathname2);
+			}else{
+				return insertDir(regM.numMFT, pathname2);
+			}
         } else { 
 			return ERRO;
 		}
@@ -663,16 +787,40 @@ DIR2 opendir2 (char *pathname) {
 	}
 }
 
+//ass:Nicolas
 int readdir2 (DIR2 handle, DIRENT2 *dentry) {
+	ODIN *odir;
+	REGMFT regM;
+	REGRECORD regR;
+	int i=0;
 
 	initLib();
 
-    return ERRO;
+	if((odir = findDir(handle)) != NULL){
+		loadMFT(&regM, odir->numMFT, bootBlock.blockSize);
+		loadFirstRecord(&regR, regM, bootBlock.blockSize);
+
+		while(i != odir->currentPointer){
+			if(nextRecord(&regR, &regM) != OK){
+				return -END_OF_DIR;
+			}else if(isRecordFree(regR) == ERRO){
+				i++;
+			}			
+		}
+		getRecordName(regR, dentry->name);
+		dentry->fileType=(BYTE)getRecordType(regR);
+		dentry->fileSize=(DWORD)getBytesFileSize(regR);
+		odir->currentPointer++;
+		return OK;
+
+	}else{
+		return ERRO;
+	}
 }
 
 int closedir2 (DIR2 handle) {
 	initLib();
 
-	return removeDir(handle);
+	return removeDirByHandle(handle);
 }
 

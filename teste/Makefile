@@ -6,7 +6,7 @@ CC=gcc
 LIB_DIR=../lib
 CFLAGS = -Wall -m32 -std=c99
 
-TARGET = teste_create teste_open teste_delete teste_read teste_write teste_truncate teste_mkdir
+TARGET = teste_create teste_open teste_delete teste_read teste_write teste_truncate teste_mkdir teste_readdir
 
 all: $(TARGET)
 
@@ -30,7 +30,10 @@ teste_truncate: teste_truncate.c $(LIB_DIR)/libt2fs.a
 
 teste_mkdir: teste_mkdir.c $(LIB_DIR)/libt2fs.a
 	$(CC) -o teste_mkdir teste_mkdir.c -L$(LIB_DIR) -lt2fs $(CFLAGS)
-	
+
+teste_readdir: teste_readdir.c $(LIB_DIR)/libt2fs.a
+	$(CC) -o teste_readdir teste_readdir.c -L$(LIB_DIR) -lt2fs $(CFLAGS)
+
 clean:
 	rm -rf $(TARGET) *.o *~
 

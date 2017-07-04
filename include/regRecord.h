@@ -8,9 +8,8 @@
 //#include "t2fs.h"
 
 #define SIZERECORD 64
-#define ERRO -1
+#define ERRO -3
 #define OK 0
-#define ERRO_MSM_SETOR -3
 #define ERRO_MSM_BLOCO -4
 #define ERRO_MSM_TUPLA -5
 #define ERRO_PROXIMA_TUPLA -6
