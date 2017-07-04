@@ -20,8 +20,8 @@
 typedef struct {
     DIR2 handle;
     int numMFT;
+    char path[200];
     int currentPointer; //pode ficar maior ( ͡° ͜ʖ ͡°)
-    int estaAberto;
 } ODIN;
 
 typedef struct {
@@ -64,5 +64,18 @@ int readBlock(REGMFT regM, int VBN, char *buffer);
 
 // bunda: henrique
 int writeBlock(REGMFT regM, int VBN, char *buffer);
+
+//---------------------Funcs de lista-------------------------
+//ass: gabriel o obstinado
+
+ODIN* findDir(DIR2 handle){
+
+int isOpenDir(char *pathname);
+
+DIR2 insertDir(int numMFT, char *pathname);
+
+int removeDir(DIR handle);
+//-----------------------------------------------------------
+
 
 #endif //_HAS_AUXLIB2_H

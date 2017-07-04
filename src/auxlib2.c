@@ -283,6 +283,7 @@ void initLib(){
 	int i;
 	if(hasBegun!=OK){
 		loadBootBlock();
+		diretoriosAbertos=initLista;
 		hasBegun=OK;
 		for(i=0; i<20; i++){
 			arquivosAbertos[i].estaAberto=ERRO;
@@ -318,3 +319,97 @@ int writeBlock(REGMFT regM, int VBN, char *buffer) {
 		return ERRO;
 	}
 }
+
+//---------------------Funcs de lista-------------------------
+//ass: gabriel o obstinado
+
+ODIN* findDir(DIR2 handle){
+	ODIN *dir;
+	if(diretoriosAbertos==NULL){
+		return NULL;
+	}else{
+		while(diretoriosAbertos->prox != NULL){
+			if(((ODIN*)diretoriosAbertos->dados)->handle == handle){
+				dir=(ODIN*)diretoriosAbertos->dados;
+				diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+				return dir;
+			}else{
+				diretoriosAbertos=diretoriosAbertos->prox;
+			}
+		}
+		if(((ODIN*)diretoriosAbertos->dados)->handle==handle){
+			dir=(ODIN*)diretoriosAbertos->dados;
+			diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+			return dir;
+		}else{
+			diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+			return NULL;
+		}
+	}
+}
+
+int isOpenDir(char *pathname){
+	if(diretoriosAbertos==NULL){
+		return ERRO;
+	}else{
+		while(diretoriosAbertos->prox != NULL){
+			if(strcmp(pathname, ((ODIN*)diretoriosAbertos->dados)->path) == OK){
+				diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+				return OK;
+			}else{
+				diretoriosAbertos=diretoriosAbertos->prox;
+			}
+		}
+		if(strcmp(pathname, ((ODIN*)diretoriosAbertos->dados)->path) == OK){
+			diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+			return OK;
+		}else{
+			diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+			return ERRO;
+		}
+	}
+}
+
+
+DIR2 insertDir(int numMFT, char *pathname){
+	ODIN *dir = malloc(sizeof(ODIN));
+
+	dir->handle=getHandle();
+	strcpy(dir->pathname, pathname);
+	dir->numMFT=numMFT;
+	dir->currentpointer=0;
+
+	diretoriosAbertos=insertLista(diretoriosAbertos, (void *)dir);
+
+	return dir->handle;
+}
+
+int removeDir(DIR handle){
+	ODIN *dir;
+	int i=0;
+	if(diretoriosAbertos==NULL){
+		return ERRO;
+	}else{
+		while(diretoriosAbertos->prox != NULL){
+			if(((ODIN*)diretoriosAbertos->dados)->handle == handle){
+				diretoriosAbertos=removeLista(diretoriosAbertos, i);
+				diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+				return OK;
+			}else{
+				diretoriosAbertos=diretoriosAbertos->prox;
+				i++;
+			}
+		}
+		if(((ODIN*)diretoriosAbertos->dados)->handle==handle){
+			diretoriosAbertos=removeLista(diretoriosAbertos, i);
+			diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+			return OK;
+		}else{
+			diretoriosAbertos=getFirstNodeLista(diretoriosAbertos);
+			return ERRO;
+		}
+	}
+}
+
+
+//-----------------------------------------------------------

@@ -586,7 +586,7 @@ int seek2 (FILE2 handle, DWORD offset) {
 
 int mkdir2 (char *pathname) {
 	int freeRegNum, freeBlkNum;
-	REGRECORD *regR, *regAvo;
+	REGRECORD *regR, *regAvo, regRneto;
 	REGMFT regM, regM2;
 	char *token, *aux;
 	char pathname2[200];
@@ -617,7 +617,16 @@ int mkdir2 (char *pathname) {
 				token = strtok(NULL,"/");
 			} while(token!=NULL);
 					
-			writeNewRecord(aux, freeRegNum, regR, &regM, regAvo, IS_DIR);	
+			writeNewRecord(aux, freeRegNum, regR, &regM, regAvo, IS_DIR);
+
+			loadFirstRecord(&regRneto, regM2, bootBlock.blockSize);
+			for(int i=0; i<bootBlock.blockSize; i++){
+				for(int j=0; j<4; j++){
+					setRecordType(&regRneto, 0);
+					nextRecord(&regRneto, &regM2);
+				}
+				write_sector(bootBlock.blockSize * regRneto.blkPointer + regRneto.sectPointer);
+			}
 			return OK;
         } else { 
 			return ERRO;
@@ -628,22 +637,45 @@ int mkdir2 (char *pathname) {
 }
 
 int rmdir2 (char *pathname) {
+
 	initLib();
+
     return ERRO;
 }
 
 DIR2 opendir2 (char *pathname) {
+	int freeRegNum, freeBlkNum;
+	REGRECORD *regR, *regAvo, regRneto;
+	REGMFT regM, regM2;
+	char *token, *aux;
+	char pathname2[200];
+
+	strcpy(pathname2,pathname);//se nao da segmentation falut pq strtok n gosta de parametros
+
 	initLib();
-    return ERRO;
+
+    if (isValidPath(pathname2) == OK && fileExists(pathname2, &regR, &regM, &regAvo) == IS_A_DIR) {
+		if (isOpenDir(pathname2) == ERRO) {
+			return insertDir(regM.numMFT, pathname2);
+        } else { 
+			return ERRO;
+		}
+    } else {
+		return ERRO;
+	}
 }
 
 int readdir2 (DIR2 handle, DIRENT2 *dentry) {
+
 	initLib();
+
     return ERRO;
 }
 
 int closedir2 (DIR2 handle) {
+
 	initLib();
+
     return ERRO;
 }
 
