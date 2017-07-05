@@ -366,7 +366,7 @@ int write2 (FILE2 handle, char *buffer, int size) {
 				if (isTuplaJmp(regMfile) == OK) {
 					loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
 				} else {
-					printf("\ngetVBN:%d VBNatual:%d getCont:%d BFS:%d ", getVBN(regMfile), VBNatual, getContinuosBlocks(regMfile), getBytesFileSize(*regR));
+					//printf("\ngetVBN:%d VBNatual:%d getCont:%d BFS:%d ", getVBN(regMfile), VBNatual, getContinuosBlocks(regMfile), getBytesFileSize(*regR));
 					if(VBNatual >= getVBN(regMfile) && VBNatual < getVBN(regMfile) + getContinuosBlocks(regMfile)){
 						achou=OK;
 					}else{
@@ -580,11 +580,12 @@ int seek2 (FILE2 handle, DWORD offset) {
 	for (int i=0; i<20; i++) {
 		if (arquivosAbertos[i].handle == handle) {
 			fileExists(arquivosAbertos[i].path, &regR, &regM, &regAvo);
-			if(offset > getBytesFileSize(*regR)){
-				return ERRO;
-			}
-			else if(offset == -1){
+			//printf("\n offset %d filisesize: %d ", offset, getBytesFileSize(*regR));
+			if(offset == 0xFFFFFFFF){
 				arquivosAbertos[i].currentPointer = getBytesFileSize(*regR);
+			}
+			else if(offset > getBytesFileSize(*regR)){
+				return ERRO;
 			}else{
 				arquivosAbertos[i].currentPointer = offset;
 			}
@@ -609,7 +610,7 @@ int mkdir2 (char *pathname) {
     if (isValidPath(pathname2) == OK && fileExists(pathname2, &regR, &regM, &regAvo) == MISSING_FILE) {
 		if ((freeRegNum = findFreeMFT()) != ERRO) {
 			loadMFT(&regM2, freeRegNum, bootBlock.blockSize);
-            
+            //printf("\n ffmft: %d", freeRegNum);
 			setRegType(freeRegNum,1,0, &regM2);
 			setRegType(freeRegNum,0,1, &regM2);
 			setVBN(freeRegNum, 0, 0, &regM2);
@@ -632,11 +633,13 @@ int mkdir2 (char *pathname) {
 
 			loadFirstRecord(&regRneto, regM2, bootBlock.blockSize);
 			for(int i=0; i<bootBlock.blockSize; i++){
-				for(int j=0; j<4; j++){
+				for(int j=0; j<3; j++){
 					setRecordType(&regRneto, 0);
 					nextRecord(&regRneto, &regM2);
 				}
+				setRecordType(&regRneto, 0);
 				write_sector(bootBlock.blockSize * regRneto.blkPointer + regRneto.sectPointer, regRneto.data);
+				nextRecord(&regRneto, &regM2);
 			}
 			return OK;
         } else { 
@@ -777,7 +780,7 @@ DIR2 opendir2 (char *pathname) {
 			if(strcmp("/",pathname) == OK){
 				return insertDir(1,pathname2);
 			}else{
-				return insertDir(regM.numMFT, pathname2);
+				return insertDir(getMFTNumber(*regR), pathname2);
 			}
         } else { 
 			return ERRO;
@@ -799,14 +802,40 @@ int readdir2 (DIR2 handle, DIRENT2 *dentry) {
 	if((odir = findDir(handle)) != NULL){
 		loadMFT(&regM, odir->numMFT, bootBlock.blockSize);
 		loadFirstRecord(&regR, regM, bootBlock.blockSize);
-
-		while(i != odir->currentPointer){
-			if(nextRecord(&regR, &regM) != OK){
+		//printf("\n sec: %d mft: %d", regR.blkPointer * bootBlock.blockSize, odir->numMFT);
+		/*
+		while(isRecordFree(regR) == OK){
+			if(nextRecord(&regR,&regM)==ERRO_EOF){
 				return -END_OF_DIR;
-			}else if(isRecordFree(regR) == ERRO){
-				i++;
-			}			
+			}
+		}*/
+		
+		for(i=0; i<=odir->currentPointer; i++){
+			if(i!=0){
+				if(nextRecord(&regR,&regM)==ERRO_EOF){
+					return -END_OF_DIR;
+				}
+			}
+			while(isRecordFree(regR) == OK){
+				//printf("\nrendeu: %d", handle);
+				if(nextRecord(&regR,&regM)==ERRO_EOF){
+					return -END_OF_DIR;
+				}
+			}
 		}
+		/*
+		if(isRecordFree(regR) != OK){
+			i++;
+		}
+		while(i<odir->currentPointer){
+			if(nextRecord(&regR,&regM)==ERRO_EOF){
+				return -END_OF_DIR;
+			}
+			if(isRecordFree(regR) != OK){
+				i++;
+			}
+		}*/
+
 		getRecordName(regR, dentry->name);
 		dentry->fileType=(BYTE)getRecordType(regR);
 		dentry->fileSize=(DWORD)getBytesFileSize(regR);

@@ -30,8 +30,8 @@ int main() {
 	} else{
 		while((readdir2(handleD1, &dir1)) == 0){
 			printf("\n");
-			puts(dir.name);
-            printf("Tipo:%d Size:%d \n", dir.fileType, dir.fileSize);
+			puts(dir1.name);
+            printf("Tipo:%d Size:%d \n", dir1.fileType, dir1.fileSize);
 		}
 		if(closedir2(handleD1) != 0){
 			printf("\ndeu merda 3");
@@ -93,19 +93,19 @@ int main() {
 	}
 	
 	if((write2(handleF2,"totosinho na balada totosinho reuniao",50)) < 0){
-		printf("nao escreveu os totosinho mas ta tranquilaço porque era pra dar merda mesmo");
+		printf("\nnao escreveu os totosinho mas ta tranquilaço porque era pra dar merda mesmo");
 	} else{
 		printf("\ndeu merda 16");
 	}
 	
 	if((rmdir2("/pastoso"))<0){
-		printf("nao conseguiu remover o pastoso porque tem testada dentro");
+		printf("\nnao conseguiu remover o pastoso porque tem testada dentro");
 	} else{
 		printf("\ndeu merda na parte de excluir o pastoso");
 	}
 	
 	if((handleF3 = open2("/pastoso/testada")) < 0){
-		printf("\ndeu merda 16");
+		printf("\ndeu merda 16b");
 	} else{
 		if((seek2(handleF3, -1)) < 0){
 			printf("\ndeu merda 17");
@@ -118,7 +118,7 @@ int main() {
 				} else{
 					if((read2(handleF3, buffer4, 40)) < 0){
 						printf("\ndeu merda 20");
-					} else`{
+					} else{
 						printf("\n");
 						puts(buffer4);
 						if((delete2("/pastoso/testada")) < 0){
@@ -131,7 +131,7 @@ int main() {
 	}
 	
 	if((handleF4 = open2("/pastoso/testada")) < 0){
-		printf("NAO ABRIU A TESTADA DO PASTOSO, MAS ELE NEM EXISTE MESMO NÉ PROGRAMADOR BURRO");
+		printf("\nNAO ABRIU A TESTADA DO PASTOSO, MAS ELE NEM EXISTE MESMO NÉ PROGRAMADOR BURRO");
 	} else{
 		printf("\ndeu merda 22");
 	}
@@ -157,9 +157,10 @@ int main() {
 			if((seek2(handleF5, 6)) < 0){
 				printf("\ndeu merda 27");
 			} else{
-				if((truncate(handleF5)) < 0){
+				if((truncate2(handleF5)) < 0){
 					printf("\ndeu merda 28");
 				} else{
+					seek2(handleF5,0);
 					if((read2(handleF5, buffer6, 40)) < 0){
 						printf("\ndeu merda 29");
 					} else{
