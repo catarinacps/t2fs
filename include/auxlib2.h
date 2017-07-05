@@ -20,14 +20,14 @@ typedef struct {
     DIR2 handle;
     int numMFT;
     char path[200];
-    int currentPointer; //pode ficar maior ( ͡° ͜ʖ ͡°)
+    int currentPointer; // pode ficar maior ( ͡° ͜ʖ ͡°)
 } ODIN;
 
 typedef struct {
     FILE2 handle;
     int numMFT;
     char path[200];
-    int currentPointer; //pode ficar maior ( ͡° ͜ʖ ͡°)²
+    int currentPointer; // pode ficar maior ( ͡° ͜ʖ ͡°)²
     int estaAberto;
 } OFILE;
 
@@ -36,8 +36,7 @@ struct t2fs_bootBlock bootBlock;
 OFILE arquivosAbertos[20];
 LISTA *diretoriosAbertos;
 
-
-//int handleUltraMasterGenerator;
+// int handleUltraMasterGenerator;
 
 int openSpots();
 
@@ -49,25 +48,25 @@ int findFreeMFT();
 
 int loadBootBlock();
 
-//ass:Gabriel
+// ass:Gabriel
 int writeNewRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGRECORD *regAvo, int tipo);
 
-//ass:gabriel
+// ass:gabriel
 int getHandle();
 
-//ass:gabriel
+// ass:gabriel
 void initLib();
 
-//ass:gabriel
+// ass:gabriel
 int readBlock(REGMFT regM, int VBN, char *buffer);
 
 // bunda: henrique
 int writeBlock(REGMFT regM, int VBN, char *buffer);
 
 //---------------------Funcs de lista-------------------------
-//ass: gabriel o obstinado
+// ass: gabriel o obstinado
 
-ODIN* findDir(DIR2 handle);
+ODIN *findDir(DIR2 handle);
 
 int isOpenDir(char *pathname);
 
@@ -77,6 +76,5 @@ int removeDirByHandle(DIR2 handle);
 
 int removeDirByPath(char *pathname);
 //-----------------------------------------------------------
-
 
 #endif //_HAS_AUXLIB2_H

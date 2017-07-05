@@ -16,88 +16,86 @@
 #define ERRO_PROXIMO_MFT -7
 #define ERRO_EOF -8
 
-
 typedef struct {
-	unsigned char data[SECTOR_SIZE];
-	int pointer;	 //qual dos 4 diretorios dentro do setor
-	int sectPointer;
-	int blkPointer;
-	REGMFT regM;
-}REGRECORD;
+    unsigned char data[SECTOR_SIZE];
+    int pointer; // qual dos 4 diretorios dentro do setor
+    int sectPointer;
+    int blkPointer;
+    REGMFT regM;
+} REGRECORD;
 
 int blocoSize;
 
-//carrega a primeira entrada de diretorio e seta o ponteiro para zero
-//ass:Nicolas
+// carrega a primeira entrada de diretorio e seta o ponteiro para zero
+// ass:Nicolas
 void loadFirstRecord(REGRECORD *regR, REGMFT regM, int blockSize);
 
-//passa para a proxima entrada de diretorio se puder e retorna 0, 1 caso contrario
-//ass:Nicolas
+// passa para a proxima entrada de diretorio se puder e retorna 0, 1 caso contrario
+// ass:Nicolas
 int nextRecord(REGRECORD *regR, REGMFT *regM);
 
-//passa para a entrada de diretorio anterior se puder e retorna 0, 1 caso contrario
-//ass:Nicolas
-//int backRecord(REGRECORD *regR, REGMFT *regM);
+// passa para a entrada de diretorio anterior se puder e retorna 0, 1 caso contrario
+// ass:Nicolas
+// int backRecord(REGRECORD *regR, REGMFT *regM);
 
 //----------------------------------------------------------------------------------------------
 /*Type
-	 0: registro invalido (livre)
-	 1: arquivo regular (file)
-	 2:	arquivo de diretorio (dir)
+         0: registro invalido (livre)
+         1: arquivo regular (file)
+         2:	arquivo de diretorio (dir)
 */
-//retorna o tipo da entrada de diretorio. gg litle-endian
-//ass:Nicolas
+// retorna o tipo da entrada de diretorio. gg litle-endian
+// ass:Nicolas
 int getRecordType(REGRECORD regR);
 
-//retorna 1 se a entrada de diretorio indica registro livre, 0 caso contrario
-//ass:Nicolas
+// retorna 1 se a entrada de diretorio indica registro livre, 0 caso contrario
+// ass:Nicolas
 int isRecordFree(REGRECORD regR);
 
-//retorna 1 se a entrada de diretorio indica um arquivo, 0 caso contrario
-//ass:Nicolas
+// retorna 1 se a entrada de diretorio indica um arquivo, 0 caso contrario
+// ass:Nicolas
 int isRecordFile(REGRECORD regR);
 
-//retorna 1 se a entrada de diretorio indica um diretorio, 0 caso contrario
-//ass:Nicolas
+// retorna 1 se a entrada de diretorio indica um diretorio, 0 caso contrario
+// ass:Nicolas
 int isRecordDir(REGRECORD regR);
 
 //----------------------------------------------------------------------------------------------
 
-//retorna nome de reg
-//ass:Nicolas
+// retorna nome de reg
+// ass:Nicolas
 int getRecordName(REGRECORD regR, char *buffer);
 
-//retorna tamanho total em blocos de reg
-//ass:Nicolas
+// retorna tamanho total em blocos de reg
+// ass:Nicolas
 int getBlocksFileSize(REGRECORD regR);
 
-//retorna tamanho total em bytes de reg
-//ass:Nicolas
+// retorna tamanho total em bytes de reg
+// ass:Nicolas
 int getBytesFileSize(REGRECORD regR);
 
-//retorna numero de registro MFT de reg
-//ass:Nicolas
+// retorna numero de registro MFT de reg
+// ass:Nicolas
 int getMFTNumber(REGRECORD regR);
 
 //----------------------------------------------------------------------------------------------
 
-//seta o tipo da entrada de diretorio.
-//ass:Gabriel
+// seta o tipo da entrada de diretorio.
+// ass:Gabriel
 int setRecordType(REGRECORD *regR, int type);
 
-//seta nome de reg, retorna OK se conseguiu, ERRO caso contrario
-//ass:Gabriel
+// seta nome de reg, retorna OK se conseguiu, ERRO caso contrario
+// ass:Gabriel
 int setRecordName(REGRECORD *regR, char *buffer);
 
-//seta tamanho total em blocos de reg
-//ass:Gabriel
+// seta tamanho total em blocos de reg
+// ass:Gabriel
 void setBlocksFileSize(REGRECORD *regR, int size);
 
-//seta tamanho total em bytes de reg
-//ass:Gabriel
+// seta tamanho total em bytes de reg
+// ass:Gabriel
 void setBytesFileSize(REGRECORD *regR, int size);
 
-//seta numero de registro MFT de reg
-//ass:Gabriel
+// seta numero de registro MFT de reg
+// ass:Gabriel
 void setMFTNumber(REGRECORD *regR, int numMFT);
-
