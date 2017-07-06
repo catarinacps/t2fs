@@ -1,10 +1,11 @@
-#	-- The compact threads library --
+#	-- The T2FS file system --
 #
 #	Makefile do arquivo da library estática
 #
 #	@param target
-#		Pode ser "all" ou "clean", sendo que "all"
-#		compila a library e "clean" limpa todos arquivos criados
+#		"all" - compila a library
+#		"clean" - limpa os binários gerados na compilação
+#		"redo" - realiza a regra clean e então compila a library
 #
 #	@authors	Henrique Correa Pereira da Silva
 #				Nicolas Eymael da Silva

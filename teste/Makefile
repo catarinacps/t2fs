@@ -40,6 +40,8 @@ teste_god: teste_god.c $(LIB_DIR)/libt2fs.a
 clean:
 	rm -rf $(TARGET) *.o *~
 
+.PHONY: clean all
 
-
-
+redo: clean
+	make all
+	
