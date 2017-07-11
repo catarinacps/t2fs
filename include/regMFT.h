@@ -81,8 +81,8 @@ int setRegType(int numMFT, int type, int numTupla, REGMFT *regM);
 // ass:Nicolas
 int setRegCont(int numMFT, int cont, int numTupla, REGMFT *regM);
 
-// bunda: henrique
+// ass: henrique
 int setLBN(int numMFT, int lbn, int numTupla, REGMFT *regM);
 
-// bunda: henrique
+// ass: henrique
 int setVBN(int numMFT, int vbn, int numTupla, REGMFT *regM);

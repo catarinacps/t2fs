@@ -40,7 +40,7 @@ int isValidPath(char caminho[]) {
 }
 
 // ass: nigolas
-// essa monstruosidade nao deveria ser bunda henrique
+// essa monstruosidade nao deveria ser ass henrique
 int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD **regRout2) {
     REGMFT regM;
     REGRECORD *regR, *regR2;
@@ -116,7 +116,7 @@ int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD *
     }
 }
 
-// bunda: henrique
+// ass: henrique
 int findFreeMFT() {
     int numMFTreg = bootBlock.blockSize * bootBlock.MFTBlocksSize / 2;
     REGMFT regM;
@@ -314,7 +314,7 @@ int readBlock(REGMFT regM, int VBN, char *buffer) {
     }
 }
 
-// bunda: henrique
+// ass: henrique
 int writeBlock(REGMFT regM, int VBN, char *buffer) {
     if (VBN >= getVBN(regM) && VBN < getVBN(regM) + getContinuosBlocks(regM)) {
         for (int i = 0; i < bootBlock.blockSize; i++) {

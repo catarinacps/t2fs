@@ -60,7 +60,7 @@ void initLib();
 // ass:gabriel
 int readBlock(REGMFT regM, int VBN, char *buffer);
 
-// bunda: henrique
+// ass: henrique
 int writeBlock(REGMFT regM, int VBN, char *buffer);
 
 //---------------------Funcs de lista-------------------------

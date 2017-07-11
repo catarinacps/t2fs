@@ -63,7 +63,7 @@ FILE2 create2(char *filename) {
     }
 }
 
-// bunda:henrique
+// ass:henrique
 // departamento de engenharia eletrica e uma bosta
 // s2 brum asdasdawdasdawdasdawd
 int delete2(char *filename) {
@@ -171,7 +171,7 @@ int delete2(char *filename) {
     return 0;
 }
 
-// bunda:henrique
+// ass:henrique
 FILE2 open2(char *filename) {
     REGRECORD *regR, *regAvo;
     REGMFT regM;
@@ -204,7 +204,7 @@ FILE2 open2(char *filename) {
     }
 }
 
-// bunda: henrique
+// ass: henrique
 int close2(FILE2 handle) {
     initLib();
 
@@ -314,7 +314,7 @@ int read2(FILE2 handle, char *buffer, int size) {
     return ERRO;
 }
 
-// bunda nicolas
+// ass nicolas
 int write2(FILE2 handle, char *buffer, int size) {
     REGMFT regM, regMfile, regMfileAux;
     REGRECORD *regR, *regAvo;
