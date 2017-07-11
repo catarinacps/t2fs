@@ -264,6 +264,7 @@ int read2(FILE2 handle, char *buffer, int size) {
 
                 for (int j = VBNatual; j <= VBNfinal; j++) {
                     if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+			printf("\nbosta\n");
                         nextTupla(&regMfile);
                         if (isTuplaJmp(regMfile) == OK) {
                             loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
@@ -380,6 +381,7 @@ int write2(FILE2 handle, char *buffer, int size) {
 
                 for (int j = VBNatual; j <= VBNfinal; j++) {
                     if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+			printf("\nbosta1\n");
                         nextTupla(&regMfile);
                         if (isTuplaJmp(regMfile) == OK) {
                             loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
@@ -391,6 +393,7 @@ int write2(FILE2 handle, char *buffer, int size) {
 
                 for (int j = VBNatual; j <= VBNfinal; j++) {
                     if (writeBlock(regMfileAux, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+			printf("\nbosta2\n");
                         nextTupla(&regMfileAux);
                         if (isTuplaJmp(regMfileAux) == OK) {
                             loadMFT(&regMfileAux, getVBN(regMfileAux), bootBlock.blockSize);
@@ -463,11 +466,17 @@ int write2(FILE2 handle, char *buffer, int size) {
                 }
 
                 // ja alocamos os blocos novos
+		loadMFT(&regMfileAux, regMfile.numMFT, bootBlock.blockSize);
+		regMfileAux.pointer = regMfile.pointer;
 
-                regMfileAux = regMfile;
+printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfileAux), getVBN(regMfileAux), VBNatual, VBNfinal, getLBN(regMfileAux));
+
+		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfile), getVBN(regMfile), VBNatual, VBNfinal, getLBN(regMfile));
+
 
                 for (int j = VBNatual; j <= VBNeof; j++) {
                     if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+			printf("\nbostabosta1\n");
                         nextTupla(&regMfile);
                         if (isTuplaJmp(regMfile) == OK) {
                             loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
@@ -476,9 +485,19 @@ int write2(FILE2 handle, char *buffer, int size) {
                 }
 
                 strncpy(nossoBuffer + corteInicio, buffer, size);
+		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfileAux), getVBN(regMfileAux), VBNatual, VBNfinal, getLBN(regMfileAux));
+
+		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfile), getVBN(regMfile), VBNatual, VBNfinal, getLBN(regMfile));
+
+		//regMfileAux = regMfile;
+
+		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfileAux), getVBN(regMfileAux), VBNatual, VBNfinal, getLBN(regMfileAux));
+
+		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfile), getVBN(regMfile), VBNatual, VBNfinal, getLBN(regMfile));
 
                 for (int j = VBNatual; j <= VBNfinal; j++) {
                     if (writeBlock(regMfileAux, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
+			printf("\nbostabosta2\n");
                         nextTupla(&regMfileAux);
                         if (isTuplaJmp(regMfileAux) == OK) {
                             loadMFT(&regMfileAux, getVBN(regMfileAux), bootBlock.blockSize);

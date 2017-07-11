@@ -304,7 +304,7 @@ void initLib() {
 int readBlock(REGMFT regM, int VBN, char *buffer) {
     if (VBN >= getVBN(regM) && VBN < getVBN(regM) + getContinuosBlocks(regM)) {
         for (int i = 0; i < bootBlock.blockSize; i++) {
-            read_sector(bootBlock.blockSize * getLBN(regM) + i, (unsigned char *)buffer + i * SECTOR_SIZE);
+            read_sector(bootBlock.blockSize * (getLBN(regM) + VBN - getVBN(regM)) + i, (unsigned char *)buffer + i * SECTOR_SIZE);
         }
 
         return OK;
@@ -318,7 +318,7 @@ int readBlock(REGMFT regM, int VBN, char *buffer) {
 int writeBlock(REGMFT regM, int VBN, char *buffer) {
     if (VBN >= getVBN(regM) && VBN < getVBN(regM) + getContinuosBlocks(regM)) {
         for (int i = 0; i < bootBlock.blockSize; i++) {
-            write_sector(bootBlock.blockSize * getLBN(regM) + i, (unsigned char *)buffer + i * SECTOR_SIZE);
+            write_sector(bootBlock.blockSize * (getLBN(regM) + VBN - getVBN(regM)) + i, (unsigned char *)buffer + i * SECTOR_SIZE);
         }
 
         return OK;
