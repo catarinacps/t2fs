@@ -120,8 +120,6 @@ int fileExists(char caminho[], REGRECORD **regRout, REGMFT *regMout, REGRECORD *
 int findFreeMFT() {
     int numMFTreg = bootBlock.blockSize * bootBlock.MFTBlocksSize / 2;
     REGMFT regM;
-    // printf(" blockSize=%d ", bootBlock.blockSize);
-    // printf(" MFTBlocksSize=%d ", bootBlock.MFTBlocksSize);
 
     for (int i = 4; i < numMFTreg; i++) {
         loadMFT(&regM, i, bootBlock.blockSize);
@@ -273,10 +271,8 @@ int writeNewRecord(char *name, int numMFT, REGRECORD *regR, REGMFT *regM, REGREC
     if (regAvo != NULL) {
 
         setBytesFileSize(regAvo, getBytesFileSize(*regAvo) + SIZERECORD);
-        // printf("\n size: %d", getBytesFileSize(*regAvo));
         write_sector(regAvo->blkPointer * bootBlock.blockSize + regAvo->sectPointer, regAvo->data);
-        // printf("\n setor:%d blkptr: %d sctptr:%d", regAvo->blkPointer * bootBlock.blockSize + regAvo->sectPointer, regAvo->blkPointer,
-        // regAvo->sectPointer);
+        
     }
 
     return OK;

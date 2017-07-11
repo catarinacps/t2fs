@@ -1,6 +1,7 @@
 #include "../include/t2fs.h"
 #include "../include/auxlib2.h"
 
+//ass:Gabriel
 int identify2(char *name, int size) {
     initLib();
     char nomes[120];
@@ -17,6 +18,7 @@ int identify2(char *name, int size) {
     return OK;
 }
 
+//ass:Gabriel
 FILE2 create2(char *filename) {
     int freeRegNum;
     REGRECORD *regR, *regAvo;
@@ -64,7 +66,7 @@ FILE2 create2(char *filename) {
 }
 
 // ass:henrique
-// departamento de engenharia eletrica e uma bosta
+// departamento de engenharia eletrica
 // s2 brum asdasdawdasdawdasdawd
 int delete2(char *filename) {
     REGRECORD *regR, *regAvo;
@@ -222,6 +224,7 @@ int close2(FILE2 handle) {
     return ERRO; // existem casos em que chega aqui
 }
 
+//ass:Nicolas
 int read2(FILE2 handle, char *buffer, int size) {
     REGMFT regM, regMfile;
     REGRECORD *regR, *regAvo;
@@ -264,7 +267,6 @@ int read2(FILE2 handle, char *buffer, int size) {
 
                 for (int j = VBNatual; j <= VBNfinal; j++) {
                     if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
-			printf("\nbosta\n");
                         nextTupla(&regMfile);
                         if (isTuplaJmp(regMfile) == OK) {
                             loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
@@ -345,7 +347,7 @@ int write2(FILE2 handle, char *buffer, int size) {
             corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
 
             if (getBytesFileSize(*regR) == 0) {
-		setBlocksFileSize(regR, 1);
+		        setBlocksFileSize(regR, 1);
                 setRegType(regMfile.numMFT, 1, regMfile.pointer, &regMfile);
                 setRegType(regMfile.numMFT, 0, regMfile.pointer + 1, &regMfile);
                 setVBN(regMfile.numMFT, 0, regMfile.pointer, &regMfile);
@@ -357,16 +359,11 @@ int write2(FILE2 handle, char *buffer, int size) {
                     return ERRO;
                 }
                 setRegCont(regMfile.numMFT, 1, regMfile.pointer, &regMfile);
-                // printf("\ngetVBN:%d VBNatual:%d getCont:%d BFS:%d ", getVBN(regMfile), VBNatual, getContinuosBlocks(regMfile),
-                // getBytesFileSize(*regR));
-                // return ERRO;
             }
             while (achou == ERRO) {
                 if (isTuplaJmp(regMfile) == OK) {
                     loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
                 } else {
-                    // printf("\ngetVBN:%d VBNatual:%d getCont:%d BFS:%d ", getVBN(regMfile), VBNatual, getContinuosBlocks(regMfile),
-                    // getBytesFileSize(*regR));
                     if (VBNatual >= getVBN(regMfile) && VBNatual < getVBN(regMfile) + getContinuosBlocks(regMfile)) {
                         achou = OK;
                     } else {
@@ -381,7 +378,6 @@ int write2(FILE2 handle, char *buffer, int size) {
 
                 for (int j = VBNatual; j <= VBNfinal; j++) {
                     if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
-			printf("\nbosta1\n");
                         nextTupla(&regMfile);
                         if (isTuplaJmp(regMfile) == OK) {
                             loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
@@ -393,7 +389,6 @@ int write2(FILE2 handle, char *buffer, int size) {
 
                 for (int j = VBNatual; j <= VBNfinal; j++) {
                     if (writeBlock(regMfileAux, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
-			printf("\nbosta2\n");
                         nextTupla(&regMfileAux);
                         if (isTuplaJmp(regMfileAux) == OK) {
                             loadMFT(&regMfileAux, getVBN(regMfileAux), bootBlock.blockSize);
@@ -410,9 +405,8 @@ int write2(FILE2 handle, char *buffer, int size) {
                 return size;
 
             } else {
-		regMfileAux = regMfile;
+		        regMfileAux = regMfile;
                 newBlocks = VBNfinal - VBNeof;
-		printf("\n%d\n", newBlocks);
 
                 while (isTuplaEnd(regMfileAux) == ERRO) {
                     if (isTuplaJmp(regMfileAux) == OK) {
@@ -466,17 +460,11 @@ int write2(FILE2 handle, char *buffer, int size) {
                 }
 
                 // ja alocamos os blocos novos
-		loadMFT(&regMfileAux, regMfile.numMFT, bootBlock.blockSize);
-		regMfileAux.pointer = regMfile.pointer;
 
-printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfileAux), getVBN(regMfileAux), VBNatual, VBNfinal, getLBN(regMfileAux));
-
-		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfile), getVBN(regMfile), VBNatual, VBNfinal, getLBN(regMfile));
-
+                regMfileAux = regMfile;
 
                 for (int j = VBNatual; j <= VBNeof; j++) {
                     if (readBlock(regMfile, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
-			printf("\nbostabosta1\n");
                         nextTupla(&regMfile);
                         if (isTuplaJmp(regMfile) == OK) {
                             loadMFT(&regMfile, getVBN(regMfile), bootBlock.blockSize);
@@ -485,19 +473,9 @@ printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContin
                 }
 
                 strncpy(nossoBuffer + corteInicio, buffer, size);
-		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfileAux), getVBN(regMfileAux), VBNatual, VBNfinal, getLBN(regMfileAux));
-
-		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfile), getVBN(regMfile), VBNatual, VBNfinal, getLBN(regMfile));
-
-		//regMfileAux = regMfile;
-
-		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfileAux), getVBN(regMfileAux), VBNatual, VBNfinal, getLBN(regMfileAux));
-
-		printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContinuosBlocks(regMfile), getVBN(regMfile), VBNatual, VBNfinal, getLBN(regMfile));
 
                 for (int j = VBNatual; j <= VBNfinal; j++) {
                     if (writeBlock(regMfileAux, j, nossoBuffer + (j - VBNatual) * bootBlock.blockSize * SECTOR_SIZE) == ERRO) {
-			printf("\nbostabosta2\n");
                         nextTupla(&regMfileAux);
                         if (isTuplaJmp(regMfileAux) == OK) {
                             loadMFT(&regMfileAux, getVBN(regMfileAux), bootBlock.blockSize);
@@ -519,6 +497,7 @@ printf("\ncontblock: %d vbn: %d\nvbnatual: %d vbnfinal: %d lbn: %d\n", getContin
     return ERRO;
 }
 
+//ass:Henrique
 int truncate2(FILE2 handle) {
     REGMFT regM, regMfile, regMemes;
     REGRECORD *regR, *regAvo;
@@ -591,7 +570,6 @@ int seek2(FILE2 handle, DWORD offset) {
     for (int i = 0; i < 20; i++) {
         if (arquivosAbertos[i].handle == handle) {
             fileExists(arquivosAbertos[i].path, &regR, &regM, &regAvo);
-            // printf("\n offset %d filisesize: %d ", offset, getBytesFileSize(*regR));
             if (offset == 0xFFFFFFFF) {
                 arquivosAbertos[i].currentPointer = getBytesFileSize(*regR);
             } else if (offset > getBytesFileSize(*regR)) {
@@ -606,6 +584,7 @@ int seek2(FILE2 handle, DWORD offset) {
     return ERRO;
 }
 
+//ass:Nicolas
 int mkdir2(char *pathname) {
     int freeRegNum, freeBlkNum;
     REGRECORD *regR, *regAvo, regRneto;
@@ -620,7 +599,6 @@ int mkdir2(char *pathname) {
     if (isValidPath(pathname2) == OK && fileExists(pathname2, &regR, &regM, &regAvo) == MISSING_FILE) {
         if ((freeRegNum = findFreeMFT()) != ERRO) {
             loadMFT(&regM2, freeRegNum, bootBlock.blockSize);
-            // printf("\n ffmft: %d", freeRegNum);
             setRegType(freeRegNum, 1, 0, &regM2);
             setRegType(freeRegNum, 0, 1, &regM2);
             setVBN(freeRegNum, 0, 0, &regM2);
@@ -809,13 +787,6 @@ int readdir2(DIR2 handle, DIRENT2 *dentry) {
     if ((odir = findDir(handle)) != NULL) {
         loadMFT(&regM, odir->numMFT, bootBlock.blockSize);
         loadFirstRecord(&regR, regM, bootBlock.blockSize);
-        // printf("\n sec: %d mft: %d", regR.blkPointer * bootBlock.blockSize, odir->numMFT);
-        /*
-        while(isRecordFree(regR) == OK){
-                if(nextRecord(&regR,&regM)==ERRO_EOF){
-                        return -END_OF_DIR;
-                }
-        }*/
 
         for (i = 0; i <= odir->currentPointer; i++) {
             if (i != 0) {
@@ -824,24 +795,11 @@ int readdir2(DIR2 handle, DIRENT2 *dentry) {
                 }
             }
             while (isRecordFree(regR) == OK) {
-                // printf("\nrendeu: %d", handle);
                 if (nextRecord(&regR, &regM) == ERRO_EOF) {
                     return -END_OF_DIR;
                 }
             }
         }
-        /*
-        if(isRecordFree(regR) != OK){
-                i++;
-        }
-        while(i<odir->currentPointer){
-                if(nextRecord(&regR,&regM)==ERRO_EOF){
-                        return -END_OF_DIR;
-                }
-                if(isRecordFree(regR) != OK){
-                        i++;
-                }
-        }*/
 
         getRecordName(regR, dentry->name);
         dentry->fileType = (BYTE)getRecordType(regR);
@@ -854,6 +812,7 @@ int readdir2(DIR2 handle, DIRENT2 *dentry) {
     }
 }
 
+//ass:Gabriel
 int closedir2(DIR2 handle) {
     initLib();
 

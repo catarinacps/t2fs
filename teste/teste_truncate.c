@@ -37,7 +37,7 @@ int main() {
             }
 
         } else {
-            printf("\ndeu merda no read");
+            printf("\ndeu erro no read");
         }
     }
     printf("\nFim do teste.\n");

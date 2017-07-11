@@ -1,26 +1,26 @@
 #include "../include/t2fs.h"
 #include <stdio.h>
 
-// CARALHO
+// droga
 int main() {
-	FILE2 rendeu, rendeucaralho;
-    char buffer[50], buffercaralho[2100], writecaralho[1500];
+	FILE2 rendeu, rendeudroga;
+    char buffer[50], bufferdroga[2100], writedroga[1500];
 
     for(int i=0; i<50; i++){
         buffer[i]=0;
     }
 
     for(int i=0; i<2100; i++){
-        buffercaralho[i]=0;
+        bufferdroga[i]=0;
     }
 
     for(int i=0; i<1498; i++){
-        writecaralho[i]='b';
+        writedroga[i]='b';
     }
-    writecaralho[1498]='a';
-    writecaralho[1499]='\0';
+    writedroga[1498]='a';
+    writedroga[1499]='\0';
 
-	puts(writecaralho);
+	puts(writedroga);
 
     printf("\nIniciando teste da funcao write2.\n");
     printf("Criando o arquivo katiau...\n");
@@ -44,17 +44,17 @@ int main() {
                 printf("deu caca no seek\n");
             }
         } else {
-            printf("deu merda no write\n");
+            printf("deu erro no write\n");
         }
 
-        if((rendeucaralho = create2("/katiau2")) >= 0) {
-            if (write2(rendeucaralho, writecaralho, 1500) > 0) {
+        if((rendeudroga = create2("/katiau2")) >= 0) {
+            if (write2(rendeudroga, writedroga, 1500) > 0) {
                 printf("eu diria que deu boa no write\n");
-                if(seek2(rendeucaralho, 1300)==0){
+                if(seek2(rendeudroga, 1300)==0){
                         printf("deu boa no seek\n");
-                        if(read2(rendeucaralho,buffercaralho,200) != -1){
+                        if(read2(rendeudroga,bufferdroga,200) != -1){
                                 printf("deu boa no read, isso foi oq ele leu:\n");
-                                puts(buffercaralho);
+                                puts(bufferdroga);
                         }else{
                             printf("deu ruim no read\n");
                         }
@@ -62,7 +62,7 @@ int main() {
                         printf("deu caca no seek\n");
                     }
             } else {
-                printf("deu merda no write\n");
+                printf("deu erro no write\n");
             }
         }
     }

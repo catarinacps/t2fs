@@ -21,7 +21,7 @@ int main() {
             printf("eu diria que deu boa\n");
             puts(buffer);
         } else {
-            printf("deu merda");
+            printf("deu erro");
         }
     }
     printf("\nFim do teste.\n");

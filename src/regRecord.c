@@ -12,7 +12,7 @@ void loadFirstRecord(REGRECORD *regR, REGMFT regM, int blockSize) {
 }
 
 // passa para a proxima entrada de diretorio se puder
-// a funcao e uma merda
+// a funcao eh horrivel
 // ass:Nicolas
 int nextRecord(REGRECORD *regR, REGMFT *regM) {
 
@@ -42,7 +42,7 @@ int nextRecord(REGRECORD *regR, REGMFT *regM) {
                         regR->blkPointer = getLBN(*regM);
                         read_sector(blocoSize * regR->blkPointer + regR->sectPointer, regR->data);
                         return OK;
-                    } else if (isTuplaJmp(*regM) == OK) {        // puta merda q troco feio
+                    } else if (isTuplaJmp(*regM) == OK) {        // nossa q troco feio
                         loadMFT(regM, getVBN(*regM), blocoSize); // pega o registro adicional
 
                         if (isTuplaChain(*regM) == OK) {

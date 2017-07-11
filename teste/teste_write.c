@@ -31,7 +31,7 @@ int main() {
                 printf("deu caca no seek\n");
             }
         } else {
-            printf("deu merda no write\n");
+            printf("deu erro no write\n");
         }
     }
 
