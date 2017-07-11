@@ -4,21 +4,23 @@
 // CARALHO
 int main() {
 	FILE2 rendeu, rendeucaralho;
-    char buffer[50], buffercaralho[1900], writecaralho[1500];
+    char buffer[50], buffercaralho[2100], writecaralho[1500];
 
     for(int i=0; i<50; i++){
         buffer[i]=0;
     }
 
-    for(int i=0; i<1900; i++){
-        buffer[i]=0;
+    for(int i=0; i<2100; i++){
+        buffercaralho[i]=0;
     }
 
-    for(int i=0; i<1500; i++){
-        writecaralho[i]='a';
+    for(int i=0; i<1498; i++){
+        writecaralho[i]='b';
     }
-    writecaralho[1498]='b';
-    writecaralho[1499]=0;
+    writecaralho[1498]='a';
+    writecaralho[1499]='\0';
+
+	puts(writecaralho);
 
     printf("\nIniciando teste da funcao write2.\n");
     printf("Criando o arquivo katiau...\n");
@@ -48,9 +50,9 @@ int main() {
         if((rendeucaralho = create2("/katiau2")) >= 0) {
             if (write2(rendeucaralho, writecaralho, 1500) > 0) {
                 printf("eu diria que deu boa no write\n");
-                if(seek2(rendeucaralho, 0)==0){
+                if(seek2(rendeucaralho, 1300)==0){
                         printf("deu boa no seek\n");
-                        if(read2(rendeucaralho,buffercaralho,1900) != -1){
+                        if(read2(rendeucaralho,buffercaralho,200) != -1){
                                 printf("deu boa no read, isso foi oq ele leu:\n");
                                 puts(buffercaralho);
                         }else{

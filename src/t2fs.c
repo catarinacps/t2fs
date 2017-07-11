@@ -303,7 +303,7 @@ int read2(FILE2 handle, char *buffer, int size) {
                     }
                 }
                 bytesLidos = getBytesFileSize(*regR) - arquivosAbertos[i].currentPointer;
-                arquivosAbertos[i].currentPointer = getBlocksFileSize(*regR);
+                arquivosAbertos[i].currentPointer = getBytesFileSize(*regR);
 
                 strncpy(buffer, nossoBuffer + corteInicio, bytesLidos);
 
@@ -344,6 +344,7 @@ int write2(FILE2 handle, char *buffer, int size) {
             corteInicio = arquivosAbertos[i].currentPointer - VBNatual * bootBlock.blockSize * SECTOR_SIZE;
 
             if (getBytesFileSize(*regR) == 0) {
+		setBlocksFileSize(regR, 1);
                 setRegType(regMfile.numMFT, 1, regMfile.pointer, &regMfile);
                 setRegType(regMfile.numMFT, 0, regMfile.pointer + 1, &regMfile);
                 setVBN(regMfile.numMFT, 0, regMfile.pointer, &regMfile);
@@ -406,7 +407,9 @@ int write2(FILE2 handle, char *buffer, int size) {
                 return size;
 
             } else {
+		regMfileAux = regMfile;
                 newBlocks = VBNfinal - VBNeof;
+		printf("\n%d\n", newBlocks);
 
                 while (isTuplaEnd(regMfileAux) == ERRO) {
                     if (isTuplaJmp(regMfileAux) == OK) {
@@ -486,6 +489,7 @@ int write2(FILE2 handle, char *buffer, int size) {
                 arquivosAbertos[i].currentPointer += size;
                 if (arquivosAbertos[i].currentPointer > getBytesFileSize(*regR)) {
                     setBytesFileSize(regR, arquivosAbertos[i].currentPointer);
+		    setBlocksFileSize(regR, getBlocksFileSize(*regR) + newBlocks);
                     write_sector(bootBlock.blockSize * regR->blkPointer + regR->sectPointer, regR->data);
                 }
 
